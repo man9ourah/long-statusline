@@ -1,3 +1,6 @@
+"" Vimrc file
+" Author: Mansour Alharthi <man9our.ah@gmail.com>
+
 set nocompatible              " be iMproved, required
 syntax on
 set hlsearch
@@ -115,7 +118,7 @@ set scrolloff=4
 set sidescrolloff=4
 " Garbage text
 set t_TI= t_TE=
-" Def update time it too long! (=4000)
+" Default update time it too long! (=4000)
 set updatetime=2000
 " Refresh tagslist
 nnoremap <silent> <f5> :TlistUpdate<CR>
@@ -128,3 +131,18 @@ if has('persistent_undo')
   set undolevels=1000
   set undoreload=10000
 endif
+
+""""""""""""""""""""""""""""""""""""""" On-demand spellcheck
+function OnDemandSpellCheck(word)
+    let s:sugg = system("echo ".a:word." | aspell -a | sed -n -e '2{p;q}' | tr -d '\n'")
+    if (s:sugg == '*')
+        echo "*"
+        return
+    endif
+    let s:startSugg = stridx(s:sugg, ":")
+    if (s:startSugg != -1)
+        echohl WarningMsg | echo "Suggestions" . strpart(s:sugg, s:startSugg) | echohl None
+    endif
+endfunction
+nnoremap <silent><c-s> :call OnDemandSpellCheck(expand("<cword>"))<CR>
+
