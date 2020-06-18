@@ -11,4 +11,4 @@ trying to install it.
 
 ### Bonus:
 You may find the colorscheme in `colors/`, you just need to symlink it in vim's
-`colors/` directory.
+`colors/` directory.. and also the `vimrc` file in `vimrc/` because why not.. :)
