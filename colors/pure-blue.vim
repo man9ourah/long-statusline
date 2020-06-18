@@ -1,4 +1,5 @@
 "highlight clear
+set background=dark
 syntax reset
 let g:colors_name = "pure-blue"
 
@@ -11,6 +12,7 @@ let s:darkgrey = "#3f3f45"
 let s:magenta = "#996ba0"
 let s:lightmagenta = "#ffbfbf"
 let s:green = "#06ba60"
+let s:darkgreen = "#03592e"
 let s:purpel = "#7f95d0"
 let s:lightblue = "#33c1ff"
 let s:anotherblue = "#00b0ff"
@@ -71,4 +73,11 @@ exec "hi IndentGuidesEven guibg=".s:darkgrey
 " VertSplit
 exec "hi VertSplit guifg=".s:darkblue." guibg=".s:darkblue
 
-unlet s:darkblue s:mutewhite s:grey s:darkgrey s:magenta s:lightmagenta s:green s:purpel s:lightblue s:anotherblue s:orange s:red s:yellow s:pink
+" Diff
+exec "hi DiffChange	guibg=".s:darkblue." guifg=".s:mutewhite
+exec "hi DiffText gui=NONE cterm=NONE guibg=".s:red." guifg=".s:mutewhite
+exec "hi DiffAdd guibg=".s:darkgreen." guifg=".s:mutewhite
+exec "hi DiffDelete guibg="s:darkgrey." guifg=black"
+
+
+unlet s:darkblue s:mutewhite s:grey s:darkgrey s:magenta s:lightmagenta s:green s:darkgreen s:purpel s:lightblue s:anotherblue s:orange s:red s:yellow s:pink
