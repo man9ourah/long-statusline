@@ -1,4 +1,7 @@
-"highlight clear
+" Vim color file
+" Author:   Mansour Alharthi <man9our.ah@gmail.com>
+
+highlight clear
 set background=dark
 syntax reset
 let g:colors_name = "pure-blue"
@@ -56,7 +59,6 @@ exec "hi Title guifg=".s:purpel." guibg=NONE"
 
 " Spell
 exec "hi SpellBad guifg=".s:mutewhite." guibg=red"
-exec "hi SpellCap guifg=".s:mutewhite." guibg=red"
 exec "hi SpellLocal guifg=".s:mutewhite." guibg=red"
 exec "hi SpellRare guifg=".s:mutewhite." guibg=red"
 
