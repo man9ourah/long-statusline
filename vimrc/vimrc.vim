@@ -93,7 +93,6 @@ let vim_markdown_preview_toggle=2
 let vim_markdown_preview_github=1
 let vim_markdown_preview_browser='Mozilla Firefox'
 let vim_markdown_preview_temp_file=1
-let vim_markdown_preview_sleep='500m'
 
 """"""""""""""""""""""""""""""""""""""" Misc.
 " show existing tab with 4 spaces width
