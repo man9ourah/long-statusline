@@ -30,7 +30,7 @@ exec "hi Normal guifg=".s:mutewhite." guibg=".s:darkblue
 " Syntax groups
 exec "hi Comment guifg=".s:grey
 exec "hi Constant guifg=".s:magenta
-exec "hi Identifier cterm=NONE guifg=".s:orange
+exec "hi Identifier cterm=NONE guifg=".s:mutewhite
 exec "hi Statement guifg=".s:anotherblue
 exec "hi PreProc guifg=".s:purpel
 exec "hi Type guifg=".s:green
