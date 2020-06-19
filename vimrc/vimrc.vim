@@ -77,14 +77,16 @@ let g:indent_guides_start_level=2
 let g:indent_guides_guide_size = 1
 
 """""""""""""""""""""""""""""""""""""""" Taglist
+" Use universal ctags
+let Tlist_Ctags_Cmd="ctags" 
 let Tlist_Auto_Open=1
 let Tlist_Exit_OnlyWindow = 1
 let Tlist_Auto_Highlight_Tag = 1
 let Tlist_Use_SingleClick = 1
 let Tlist_Show_One_File = 1
 let Tlist_Enable_Fold_Column = 0
-nnoremap <silent> <c-up> :call Tlist_Jump_Prev_Tag()<CR>
-nnoremap <silent> <c-down> :call Tlist_Jump_Next_Tag()<CR>
+nmap <silent> <c-up> <plug>(TlistJumpTagUp)
+nmap <silent> <c-down> <plug>(TlistJumpTagDown)
 
 """"""""""""""""""""""""""""""""""""""" Vim Markdown
 "" We changed the code tailoring our options!!
