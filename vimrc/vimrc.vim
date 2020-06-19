@@ -38,7 +38,6 @@ call vundle#end()            " required
 filetype plugin indent on
 
 """"""""""""""""""""""""""""""""""""""" Column for text files
-au BufRead,BufNewFile *.txt setlocal colorcolumn=80 spell
 au BufRead,BufNewFile text setlocal colorcolumn=80 spell
 au BufRead,BufNewFile *.tex setlocal colorcolumn=80 spell
 au BufRead,BufNewFile *.md setlocal colorcolumn=80 spell
