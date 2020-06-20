@@ -27,7 +27,7 @@ Plugin 'nathanaelkane/vim-indent-guides'
 
 Plugin 'easymotion/vim-easymotion'
 
-Plugin 'man9ourah/taglist.vim'
+Plugin 'man9ourah/taglist'
 
 Plugin 'man9ourah/vim-markdown-preview'
 
