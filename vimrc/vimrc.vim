@@ -124,7 +124,8 @@ set updatetime=1000
 " Refresh tagslist
 nnoremap <silent> <f5> :TlistUpdate<CR>
 nnoremap <silent> <f2> :nohls<CR>
-
+" Show search count
+set shortmess-=S
 """"""""""""""""""""""""""""""""""""""" Persistent undo
 if has('persistent_undo')
   set undodir=$HOME/.vim/undo
