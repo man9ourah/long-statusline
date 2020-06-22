@@ -104,6 +104,7 @@ set shiftwidth=4
 set expandtab
 set nu
 set clipboard=unnamedplus
+set textwidth=80
 " :W -> :w
 cnoreabbrev <expr> W ((getcmdtype() is# ':' && getcmdline() is# 'W')?('w'):('W'))
 " :Q -> :q
