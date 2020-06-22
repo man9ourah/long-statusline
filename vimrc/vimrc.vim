@@ -38,10 +38,14 @@ call vundle#end()            " required
 filetype plugin indent on
 
 """"""""""""""""""""""""""""""""""""""" Column for text files
-au BufRead,BufNewFile text setlocal colorcolumn=80 spell
-au BufRead,BufNewFile *.tex setlocal colorcolumn=80 spell
-au BufRead,BufNewFile *.md setlocal colorcolumn=80 spell
-au BufRead,BufNewFile *.rst setlocal colorcolumn=80 spell
+augroup vimrc
+    autocmd!
+    autocmd BufRead,BufNewFile text setlocal colorcolumn=80 spell
+    autocmd BufRead,BufNewFile *.tex setlocal colorcolumn=80 spell
+    autocmd BufRead,BufNewFile *.md setlocal colorcolumn=80 spell
+    autocmd BufRead,BufNewFile *.rst setlocal colorcolumn=80 spell
+    autocmd BufWritePost * :TlistUpdate
+augroup END
 
 """"""""""""""""""""""""""""""""""""""" Easymotion
 " Move to word
@@ -49,7 +53,7 @@ map <Leader>w <Plug>(easymotion-bd-w)
 
 """""""""""""""""""""""""""""""""""""""" YCM
 let g:ycm_filetype_blacklist = {
-      \ 'tagbar': 1,
+      \ 'taglist': 1,
       \ 'notes': 1,
       \ 'netrw': 1,
       \ 'unite': 1,
@@ -121,11 +125,12 @@ set sidescrolloff=4
 set t_TI= t_TE=
 " Default update time it too long! (=4000)
 set updatetime=1000
-" Refresh tagslist
-nnoremap <silent> <f5> :TlistUpdate<CR>
+" Remove search hls
 nnoremap <silent> <f2> :nohls<CR>
 " Show search count
 set shortmess-=S
+" Show lastline as much as we can
+set display=lastline
 """"""""""""""""""""""""""""""""""""""" Persistent undo
 if has('persistent_undo')
   set undodir=$HOME/.vim/undo
