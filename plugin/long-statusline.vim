@@ -11,7 +11,7 @@ let s:alwaysShowEW = 1
 let s:errLblColor   = "#af0000"
 let s:warnLblColor  = "#ff8700"
 let s:clkLblColor   = "#082430"
-let s:nLblColor     = "#005f87"
+let s:nLblColor     = "#005F5F" "#005f87
 let s:vLblColor     = "#87005F"
 let s:rLblColor     = "#52ba00"
 let s:iLblColor     = "#008700"
@@ -20,7 +20,7 @@ let s:oLblColor     = "#996BA0"
 let s:flnLblColor   = "#082430"
 let s:mFlgColor     = "#7e7e89"
 let s:rFlgColor     = "#3f3f45"
-let s:infBColor     = "#005F5F"
+let s:infBColor     = "#005f87" "#005F5F
 let s:rcLbl         = "#87005F"
 
 " FG colors
@@ -126,13 +126,14 @@ endfunction
 " Updates Git status variables
 " Should be called via autocmd BufEnter and BufWritePost 
 function s:GitUpdateInfo()
-    " If we opened a dir or taglist window, ignore.
-    if &ft ==# "netrw" || &ft ==# "taglist"
+    let l:flname = expand("%:p")
+    " If we opened a dir, ignore.
+    if !filereadable(l:flname)
         return
     endif 
 
     " Parent of current file
-    let l:parentDir = fnamemodify(expand("%:p"), ":h")
+    let l:parentDir = fnamemodify(l:flname, ":h")
 
     " Set the git root dir
     if s:SetGitRootDir(l:parentDir) == 0
@@ -373,14 +374,15 @@ unlet s:nLblColor s:iLblColor s:rLblColor s:vLblColor s:sLblColor s:oLblColor s:
 """"""""""""""""""""""""""""""""""""""" Autocmd
 " Always show statusline
 set laststatus=2
-" Dont show the mode in lastline 
-set noshowmode
-" Set the statusline for main window
+
+" Set the statusline for all windows
 set statusline=%!SetStatusLine()
+
 " Set the statusline for taglist window
 let g:TaglistStatusLine = "" " Eval this var everytime main status line is updated
 augroup longsts
     autocmd!
+    " For taglist, set its stl to TaglistStatusLine
     autocmd FileType taglist setlocal statusline=%!g:TaglistStatusLine
-    autocmd FileType,BufWritePost * call s:GitUpdateInfo()
+    autocmd BufEnter,BufWritePost * call s:GitUpdateInfo()
 augroup END

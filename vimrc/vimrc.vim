@@ -131,6 +131,10 @@ nnoremap <silent> <f2> :nohls<CR>
 set shortmess-=S
 " Show lastline as much as we can
 set display=lastline
+" Dont show the mode in lastline 
+set noshowmode
+" Virtical split lines
+set fillchars=vert:\│,fold:۰,diff:·
 """"""""""""""""""""""""""""""""""""""" Persistent undo
 if has('persistent_undo')
   set undodir=$HOME/.vim/undo
