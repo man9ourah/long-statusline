@@ -73,7 +73,12 @@ exec "hi IndentGuidesOdd  guibg=#323232"
 exec "hi IndentGuidesEven guibg=".s:darkgrey
 
 " VertSplit
-exec "hi VertSplit guifg=".s:darkblue." guibg=".s:darkblue
+exec "hi VertSplit guibg=".s:magenta." guifg=".s:darkblue
+
+" StatusLine
+exec "hi StatusLine guibg=".s:darkgrey." guifg=".s:darkblue
+exec "hi StatusLineNC guibg=".s:darkblue." guifg=".s:darkblue
+
 
 " Diff
 exec "hi DiffChange	guibg=".s:darkblue." guifg=".s:mutewhite
