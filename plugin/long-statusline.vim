@@ -277,6 +277,11 @@ endfunction
 let s:GitStatus = {"enabled": 1}
 let s:GitNewCache = 100
 
+" Debug Git
+function g:GitDebug()
+    echom s:GitStatus
+endfunction
+
 " Toggle Git
 function s:GitToggleGit()
     let s:GitStatus = {"enabled": s:GitStatus["enabled"] * -1}
@@ -291,9 +296,14 @@ function g:AsyncGitCallback()
 
     if g:asyncrun_code != 0
         " If, for any reason, the command was not successfull, abort
-        call system("rm " . l:tmpfile)
+        call system("rm " . l:tmpfile . " &")
         let s:GitStatus["enabled"] = -1
         return
+    endif
+
+    if !has_key(s:GitStatus, l:buf)
+        let s:GitStatus[l:buf] = {"IsGit": -1, "RootDir": "", "BranchName": "", "Dirty": "",
+                                \ "InsertNum": 0, "DeleteNum": 0, "CacheExpired": 0}
     endif
 
     let l:lines = readfile(l:tmpfile)
@@ -320,7 +330,7 @@ function g:AsyncGitCallback()
     endif
 
     let s:GitStatus[l:buf]["IsGit"] = 1
-    call system("rm " . l:tmpfile)
+    call system("rm " . l:tmpfile . " &")
 endfunction
 
 " Full or light update of git information
@@ -425,6 +435,7 @@ augroup longsts
     autocmd WinEnter,BufEnter,BufDelete,SessionLoadPost,FileChangedShellPost * call s:ManageWinStl()
     " Update git with every write
     autocmd BufWritePost * call s:GitUpdate(-1)
+    " GitToggle Command
     command! -nargs=0 -bar GitToggle call s:GitToggleGit()
 augroup END
 

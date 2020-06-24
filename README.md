@@ -1,14 +1,25 @@
 Long StatusLine
 ===============
 
-A vim status line that span two windows: the main buffer window's and Taglist.
+A **single** vim status line that is located at the bottom, showing information
+for whatever the active window is. 
+
+See the comments in the demo below for more.
 
 ![screenshot](screenshot.png)
 
-### Note:
-This plugin is NOT ready to use out of the box.. It is far from a complete
-project. Please read the code before trying to install it.
+## Dependencies
 
-### Bonus:
-You may find the colorscheme in `colors/`, you just need to symlink it in vim's
-`colors/` directory.. and also the `vimrc` file in `vimrc/` because why not.. :)
+* [YCM](https://github.com/ycm-core/YouCompleteMe): For errors and warnings.
+* [TagList](https://github.com/yegappan/taglist): Status line spans Taglist's
+  window too.
+* [Asyncrun](https://github.com/skywind3000/asyncrun.vim): To get Git
+  information asynchronously without a slowdown.
+
+Use at your own risk, this is not a complete project. You can view my
+[vimrc](vimrc/vimrc.vim) to see my full Vim setup and replicate in your system,
+hopefully not many changes are needed.
+
+### More
+The colorscheme is in `colors/`, you just need to symlink it in vim's
+`colors/` directory.

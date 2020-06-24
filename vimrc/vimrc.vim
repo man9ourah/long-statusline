@@ -39,13 +39,15 @@ Plugin 'man9ourah/long-statusline'
 call vundle#end()            " required
 filetype plugin indent on
 
-""""""""""""""""""""""""""""""""""""""" Column for text files
+""""""""""""""""""""""""""""""""""""""" Autocmds
 augroup vimrc
     autocmd!
+    " Colored column
     autocmd BufRead,BufNewFile text setlocal colorcolumn=80 spell
     autocmd BufRead,BufNewFile *.tex setlocal colorcolumn=80 spell
     autocmd BufRead,BufNewFile *.md setlocal colorcolumn=80 spell
     autocmd BufRead,BufNewFile *.rst setlocal colorcolumn=80 spell
+    " Update taglist with every write
     autocmd BufWritePost * :TlistUpdate
 augroup END
 
