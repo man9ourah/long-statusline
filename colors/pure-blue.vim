@@ -72,10 +72,7 @@ exec "hi MyTagListTagScope guifg=".s:green." guibg=NONE"
 exec "hi IndentGuidesOdd  guibg=#323232"
 exec "hi IndentGuidesEven guibg=".s:darkgrey
 
-" VertSplit
-exec "hi VertSplit guibg=".s:magenta." guifg=".s:darkblue
-
-" Hide Status Line
+" Hide status line main colors
 exec "hi StatusLine guifg=".s:darkblue." guibg=".s:darkblue
 exec "hi StatusLineNC guibg=".s:darkblue." guifg=".s:darkblue
 
