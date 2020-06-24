@@ -57,13 +57,15 @@ map <Leader>w <Plug>(easymotion-bd-w)
 let g:ycm_filetype_blacklist = {
       \ 'taglist': 1,
       \ 'notes': 1,
+      \ 'markdown': 1,
       \ 'netrw': 1,
       \ 'unite': 1,
       \ 'text': 1,
       \ 'vimwiki': 1,
       \ 'pandoc': 1,
       \ 'infolog': 1,
-      \ 'mail': 1,
+      \ 'leaderf': 1,
+      \ 'mail': 1
       \}
 let g:ycm_complete_in_comments = 1
 let g:ycm_autoclose_preview_window_after_completion = 1
@@ -128,7 +130,7 @@ set sidescrolloff=4
 " Garbage text
 set t_TI= t_TE=
 " Default update time it too long! (=4000)
-set updatetime=1000
+set updatetime=2000
 " Remove search hls
 nnoremap <silent> <f2> :nohls<CR>
 " Show search count
@@ -139,6 +141,8 @@ set display=lastline
 set noshowmode
 " Virtical split lines
 set fillchars+=vert:\┃
+" Max syntax column
+set synmaxcol=500
 """"""""""""""""""""""""""""""""""""""" Persistent undo
 if has('persistent_undo')
   set undodir=$HOME/.vim/undo
