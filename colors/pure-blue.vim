@@ -75,8 +75,8 @@ exec "hi IndentGuidesEven guibg=".s:darkgrey
 " VertSplit
 exec "hi VertSplit guibg=".s:magenta." guifg=".s:darkblue
 
-" StatusLine
-exec "hi StatusLine guibg=".s:darkgrey." guifg=".s:darkblue
+" Hide Status Line
+exec "hi StatusLine guifg=".s:darkblue." guibg=".s:darkblue
 exec "hi StatusLineNC guibg=".s:darkblue." guifg=".s:darkblue
 
 

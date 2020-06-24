@@ -25,6 +25,8 @@ Plugin 'Valloric/YouCompleteMe'
 
 Plugin 'nathanaelkane/vim-indent-guides'
 
+Plugin 'skywind3000/asyncrun.vim'
+
 Plugin 'easymotion/vim-easymotion'
 
 Plugin 'man9ourah/taglist'
@@ -82,7 +84,9 @@ let g:indent_guides_guide_size = 1
 """""""""""""""""""""""""""""""""""""""" Taglist
 " Use universal ctags
 let Tlist_Ctags_Cmd="ctags" 
-let Tlist_Auto_Open=1
+if !&diff
+    let Tlist_Auto_Open=1
+endif
 let Tlist_Exit_OnlyWindow = 1
 let Tlist_Auto_Highlight_Tag = 1
 let Tlist_Use_SingleClick = 1
@@ -134,18 +138,22 @@ set display=lastline
 " Dont show the mode in lastline 
 set noshowmode
 " Virtical split lines
-set fillchars=vert:\│,fold:۰,diff:·
+set fillchars+=vert:\┃
 """"""""""""""""""""""""""""""""""""""" Persistent undo
 if has('persistent_undo')
   set undodir=$HOME/.vim/undo
   set undofile
-  set undolevels=1000
+  set undolevels=100
   set undoreload=10000
 endif
 
 """"""""""""""""""""""""""""""""""""""" On-demand spellcheck
 function OnDemandSpellCheck(word)
-    let s:sugg = system("echo ".a:word." | aspell -a | sed -n -e '2{p;q}' | tr -d '\n'")
+    let s:sugg = system("echo '".a:word."' | aspell -a | sed -n -e '2{p;q}' | tr -d '\n'")
+    if v:shell_error != 0
+        return
+    endif
+
     if (s:sugg == '*')
         echo "*"
         return

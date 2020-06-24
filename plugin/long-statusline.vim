@@ -11,7 +11,7 @@ let s:alwaysShowEW = 1
 let s:errLblColor   = "#af0000"
 let s:warnLblColor  = "#ff8700"
 let s:clkLblColor   = "#082430"
-let s:nLblColor     = "#005F5F" "#005f87
+let s:nLblColor     = "#005F5F"
 let s:vLblColor     = "#87005F"
 let s:rLblColor     = "#52ba00"
 let s:iLblColor     = "#008700"
@@ -20,15 +20,15 @@ let s:oLblColor     = "#996BA0"
 let s:flnLblColor   = "#082430"
 let s:mFlgColor     = "#7e7e89"
 let s:rFlgColor     = "#3f3f45"
-let s:infBColor     = "#005f87" "#005F5F
+let s:infBColor     = "#005f87"
 let s:rcLbl         = "#87005F"
 
 " FG colors
 let s:white         = "#fcfcfc"
 let s:orange        = "#c66628"
+let s:purpel        = "#7f95d0"
 
 " Symbols 
-let s:gitBranchSym  = "\ue0a0"
 let s:lnumSym       = "Ln"
 let s:cnumSym       = "Col"
 let s:rASym         = "\ue0b0"
@@ -36,153 +36,35 @@ let s:lASym         = "\ue0b2"
 let s:tagNameSym    = "\u21b3"
 let s:sepASym       = "\ue0b9"
 let s:sepBSym       = "\ue0b8"
+let s:gitBranchSym  = "\ue0a0"
 let s:gitInsSym     = "\u2714"
 let s:gitDelSym     = "\u2718"
 
 """""""""""""""""""""""""""""""""""""""" Functions
-" Git status variables 
-let s:gitShow = 0
-let s:gitRootDir = ""
-let s:gitBranchName = ""
-let s:gitInsertNum = 0
-let s:gitDeleteNum = 0
-
+"""""""""""""""""""""""""""""""""""""""" Status line
 " If inside git repo, get path relative to git root, otherwise show full path
-function s:GetFilename()
-
-    if s:gitShow == 1
-        return fnamemodify(s:gitRootDir, ":t") . substitute(expand("%:p"), s:gitRootDir, "", "")
+function s:GetFilename(buf)
+    let l:flname = expand("#" . a:buf . ":p")
+    if stridx(l:flname, g:TagList_title) != -1
+        return g:TagList_title
+    endif
+    
+    if s:GitIsGit(a:buf) == 1
+        let l:gitRootDir = s:GitRootDir(a:buf)
+        return fnamemodify(l:gitRootDir, ":t") . substitute(l:flname, l:gitRootDir, "", "")
     endif
 
-    return expand("%:p")
-endfunction
-
-" Sets s:gitRootDir
-function s:SetGitRootDir(parentDir)
-    let l:dotGitDir = system("git -C " . a:parentDir . " rev-parse --absolute-git-dir")
-    if v:shell_error != 0
-        let s:gitShow = 0
-        return 0
-    endif
-
-    let s:gitRootDir = trim(fnamemodify(l:dotGitDir, ":h"))
-
-    return 1
-endfunction
-
-" Sets s:gitBranchName
-function s:SetGitBranchName(parentDir)
-    let l:fullBranchName = system("git -C " . a:parentDir . " symbolic-ref HEAD")
-    if v:shell_error != 0
-
-        " Try commit hash
-        let s:gitBranchName = system("git -C " . a:parentDir . " rev-parse --short HEAD")
-        if v:shell_error != 0
-            " Nothing works, abort 
-            let s:gitShow = 0
-            return 0
-        endif
-
-    else
-        let s:gitBranchName = fnamemodify(l:fullBranchName, ":t")
-    endif
-
-    let s:gitBranchName = trim(s:gitBranchName)
-
-    " Append a star after branch name if repo is dirty
-    let l:gitSts = system("git -C " . a:parentDir . " status -s")
-    if v:shell_error != 0
-        let s:gitShow = 0
-        return 0
-    endif
-
-    if len(trim(l:gitSts)) != 0
-        let s:gitBranchName .= "*"
-    endif
-
-    return 1
-endfunction
-
-" Sets s:gitInsertNum & s:gitDeleteNum
-function s:SetGitChangeNum(parentDir)
-    let l:gitDiffRaw = trim(system("git -C " . a:parentDir . " diff --numstat -- " . expand("%:p")))
-    if v:shell_error != 0
-        let s:gitShow = 0
-        return 0
-    endif
-
-    if len(l:gitDiffRaw) == 0
-        let s:gitInsertNum = 0
-        let s:gitDeleteNum = 0
-    else
-        let l:splitDiff = split(l:gitDiffRaw)
-        let s:gitInsertNum = l:splitDiff[0]
-        let s:gitDeleteNum = l:splitDiff[1]
-    endif
-
-    return 1
-endfunction
-
-" Updates Git status variables
-" Should be called via autocmd BufEnter and BufWritePost 
-function s:GitUpdateInfo()
-    let l:flname = expand("%:p")
-    " If we opened a dir, ignore.
-    if !filereadable(l:flname)
-        return
-    endif 
-
-    " Parent of current file
-    let l:parentDir = fnamemodify(l:flname, ":h")
-
-    " Set the git root dir
-    if s:SetGitRootDir(l:parentDir) == 0
-        return
-    endif
-
-    " Set git branch
-    if s:SetGitBranchName(l:parentDir) == 0
-        return
-    endif
-
-    " Set the number of line changes
-    if s:SetGitChangeNum(l:parentDir) == 0
-        return
-    endif
-
-    " Now we can show git status
-    let s:gitShow = 1
-endfunction
-
-" Builds taglist's statusline
-function s:SetTaglistSts()
-
-    let g:TaglistStatusLine = ""
-    let l:errorsCount = youcompleteme#GetErrorCount()
-    let l:warnsCount = youcompleteme#GetWarningCount()
-
-    if( (l:errorsCount > 0 && l:warnsCount > 0) || s:alwaysShowEW == 1)
-        let g:TaglistStatusLine = "%#ErrLbl# " . l:errorsCount . " "
-        let g:TaglistStatusLine .= "%#ErrLblSepWrn#" . s:rASym
-        let g:TaglistStatusLine .= "%#WrnLbl# " . l:warnsCount . " "
-        let g:TaglistStatusLine .= "%#WrnLblSepClk#" . s:rASym
-
-    elseif(l:errorsCount > 0)
-        let g:TaglistStatusLine = "%#ErrLbl# " . l:errorsCount . " "
-        let g:TaglistStatusLine .= "%#ErrLblSepClk#" . s:rASym
-
-    elseif(l:warnsCount > 0)
-        let g:TaglistStatusLine = "%#WrnLbl# " . l:warnsCount . " "
-        let g:TaglistStatusLine .= "%#WrnLblSepClk#" . s:rASym
-
-    endif
-
-    " Fire redraw status line to update with new value
-    let g:TaglistStatusLine .= "%#ClkLbl#%= " . strftime('%b %d %Y %l:%M %p')  | redraws!
+    return l:flname
 endfunction
 
 " Builds mode label
-function s:BuildModeLbl()
+function s:BuildModeLbl(buf, singleStl)
+    " If there are multiple status lines, then only output mode for current
+    " window
+    if a:singleStl != 1 && a:buf != bufnr("%")
+        return
+    endif
+
     let l:currentMode = mode()
     let l:modeLbl = ""
 
@@ -221,31 +103,36 @@ function s:RightTruncate(str, maxlen)
 endfunction
 
 " Builds File name/function name label
-function s:BuildFilenameLbl()
-    let l:middleText = "%#FlnLbl#" . s:GetFilename()  . " "
-    if (mode() ==? "i" || mode() ==? "r") 
+function s:BuildFilenameLbl(buf, singleStl)
+
+    let l:middleText = "%#FlnLbl#" . s:GetFilename(a:buf)  . " "
+    if ((mode() ==? "i" || mode() ==? "r") && a:singleStl == 1) 
         let l:funcProto = Tlist_Get_Tag_Prototype_By_Line()
 
         if (len(l:funcProto))
             " Show function name instead in insert mode
             let l:middleText = "%#FuncLbl#" . s:tagNameSym . 
                             \ " " . s:RightTruncate(l:funcProto, 
-                                        \ (winwidth(0) - ((s:gitShow == 0)? 45 : 69)))
-      endif
+                                        \ (winwidth(0) - ((s:GitIsGit(a:buf) == 1) ? 69 : 45)))
+        endif
 
     endif
+
     return " %<%(" . l:middleText . "%)"
 endfunction
 
 " Builds ReadOnly & Modified flags
-function s:BuildFlags()
+function s:BuildFlags(buf)
     let l:flags = ""
-    if(&modified)
+    let l:bufmodified = getbufvar(a:buf, "&modified")
+    let l:bufreadonly = getbufvar(a:buf, "&readonly") || getbufvar(a:buf, "&modifiable") == 0
+
+    if(l:bufmodified)
         let l:flags .= "%#MFlagSepFln#" . s:lASym . "%#MFlag# "
     endif
     
-    if(&readonly || &modifiable==0)
-        if(&modified)
+    if(l:bufreadonly)
+        if(l:bufmodified)
             " M & RO
             let l:flags .= "%#RFlagSepMod#" . s:lASym . "%#RFlag# " 
         else
@@ -254,7 +141,7 @@ function s:BuildFlags()
         endif
         let l:flags .= "%#InfBSepRFlag#"
     else
-        if(&modified)
+        if(l:bufmodified)
             " M 
             let l:flags .= "%#InfBSepMFlag#"
         else
@@ -266,14 +153,14 @@ function s:BuildFlags()
 endfunction
 
 " Builds information bar
-function s:BuildInfBar()
+function s:BuildInfBar(buf)
     let l:infBar = s:lASym . "%#InfB# "
-  
-    if s:gitShow == 1
-        let l:infBar .= s:gitBranchSym . " " . s:gitBranchName 
+
+    if s:GitIsGit(a:buf) == 1
+        let l:infBar .= s:gitBranchSym . " " . s:GitBranchName(a:buf) . s:GitDirty(a:buf)
         let l:infBar .= "%#InfBStrick#" . s:sepASym . "  %#InfB#"
-        let l:infBar .= s:gitInsSym . " " . s:gitInsertNum . " "
-        let l:infBar .= s:gitDelSym . " " . s:gitDeleteNum 
+        let l:infBar .= s:gitInsSym . " " . s:GitInsertNum(a:buf) . " "
+        let l:infBar .= s:gitDelSym . " " . s:GitDeleteNum(a:buf)
         let l:infBar .= "%#InfBStrick#" . s:sepASym . "  %#InfB#"
     endif
   
@@ -284,31 +171,256 @@ function s:BuildInfBar()
 endfunction
 
 " Builds the main window status line
-function SetStatusLine()
-    " Starting from the left:
-    " Taglist status line
-    call s:SetTaglistSts()
+function SetStatusLine(...)
+    let l:buf = get(a:, 1, bufnr())
+    let l:singleStl = get(a:, 2, 1)
+
+    call s:GitInit(l:buf)
 
     " Start of main window status line
     " Mode
-    let l:sts   = s:BuildModeLbl()
+    let l:sts = s:BuildModeLbl(l:buf, l:singleStl)
 
-    " File of function name
-    let l:sts  .= s:BuildFilenameLbl()
+    " File or function name
+    let l:sts .= s:BuildFilenameLbl(l:buf, l:singleStl)
  
     " Left align
     let l:sts .= "%="
     
     " File flags
-    let l:sts .= s:BuildFlags()
+    let l:sts .= s:BuildFlags(l:buf)
   
     " Information bar
-    let l:sts .= s:BuildInfBar()
+    let l:sts .= s:BuildInfBar(l:buf)
 
     return l:sts
 endfunction
 
-""""""""""""""""""""""""""""""""""""""" Colors
+" Builds taglist's statusline
+function SetTaglistSts()
+
+    let l:TaglistStatusLine = ""
+    let l:errorsCount = youcompleteme#GetErrorCount()
+    let l:warnsCount = youcompleteme#GetWarningCount()
+
+    if( (l:errorsCount > 0 && l:warnsCount > 0) || s:alwaysShowEW == 1)
+        let l:TaglistStatusLine = "%#ErrLbl# " . l:errorsCount . " "
+        let l:TaglistStatusLine .= "%#ErrLblSepWrn#" . s:rASym
+        let l:TaglistStatusLine .= "%#WrnLbl# " . l:warnsCount . " "
+        let l:TaglistStatusLine .= "%#WrnLblSepClk#" . s:rASym
+
+    elseif(l:errorsCount > 0)
+        let l:TaglistStatusLine = "%#ErrLbl# " . l:errorsCount . " "
+        let l:TaglistStatusLine .= "%#ErrLblSepClk#" . s:rASym
+
+    elseif(l:warnsCount > 0)
+        let l:TaglistStatusLine = "%#WrnLbl# " . l:warnsCount . " "
+        let l:TaglistStatusLine .= "%#WrnLblSepClk#" . s:rASym
+
+    endif
+
+    " Finally, add time
+    let l:TaglistStatusLine .= "%#ClkLbl#%= " . strftime('%b %d %Y %l:%M %p') 
+    return l:TaglistStatusLine
+endfunction
+
+" Manages how status line appear accross all windows.
+" Only two possible layouts: 
+" if we are in diff mode: both windows will have their own statusline, and
+" taglist is off.
+" Otherwise, only the bottom right window will have a long status line that
+" shows the information for whatever the current window and other windows will
+" have a straight line instead
+function s:ManageWinStl()
+    let l:isDiff = 0
+    let l:bottomRightWin = winnr('$')
+    for n in range(1, bottomRightWin)
+        let l:isDiff += getwinvar(n, "&diff")
+        let l:wintype = win_gettype(n)
+        " Ignore popup & autocmd
+        if (l:wintype !=# 'popup' || l:wintype !=# 'autocmd' || l:wintype !=# "command")
+            let l:bufnum = winbufnr(n)
+            let l:winbufname = bufname(l:bufnum)
+
+            if l:winbufname ==# g:TagList_title
+                " Set the taglist status line
+                call setwinvar(n, '&statusline', "%!SetTaglistSts()")
+
+            elseif (n == bottomRightWin)
+                " Set bottom right Window with full status line for all windows
+                call setwinvar(n, '&statusline', "%!SetStatusLine()")
+            
+            else
+                " Otherwise status line should be straight line
+                call setwinvar(n, '&statusline', "%#StraightLine#%{repeat('━',\ winwidth(".n."))}")
+              
+            end
+
+        endif
+
+    endfor
+
+    " If we are in diff
+    if l:isDiff != 0
+        let s:GitStatus["enabled"] = -1
+        for n in range(1, winnr('$'))
+            if (l:wintype !=# 'popup' || l:wintype !=# 'autocmd' || l:wintype !=# "command")
+                let l:bufnum = winbufnr(n)
+                call setwinvar(n, '&statusline', "%!SetStatusLine(" . l:bufnum . ", -1)")
+            endif
+        endfor
+    endif
+endfunction
+
+"""""""""""""""""""""""""""""""""""""" Git Functions
+" Global git status for all buffers
+let s:GitStatus = {"enabled": 1}
+let s:GitNewCache = 100
+
+" Async call back to read tmp file and update s:GitStatus
+function g:AsyncGitCallback()
+    let l:res = split(g:asyncrun_text, ":")
+    let l:isFullUpdate = (l:res[0] == "1") ? 1 : -1
+    let l:tmpfile = l:res[1]
+    let l:buf = l:res[2]
+
+    if g:asyncrun_code != 0
+        " If, for any reason, the command was not successfull, abort
+        call system("rm " . l:tmpfile)
+        let s:GitStatus["enabled"] = -1
+        return
+    endif
+
+    let l:lines = readfile(l:tmpfile)
+
+    let l:maxExpectedLines = 2
+
+    if l:isFullUpdate == 1
+        let s:GitStatus[l:buf]["RootDir"] = trim(fnamemodify(l:lines[0], ":h"))
+        let s:GitStatus[l:buf]["BranchName"] = trim(fnamemodify(l:lines[1], ":t"))
+        let l:maxExpectedLines = 4
+    endif
+
+    let s:GitStatus[l:buf]["InsertNum"] = 0
+    let s:GitStatus[l:buf]["DeleteNum"] = 0
+    let s:GitStatus[l:buf]["Dirty"] = ""
+
+    if len(l:lines) == l:maxExpectedLines
+        let s:GitStatus[l:buf]["Dirty"] = "*"
+        let l:splitdiff = split(l:lines[l:maxExpectedLines-1])
+        let s:GitStatus[l:buf]["InsertNum"] = trim(l:splitdiff[0])
+        let s:GitStatus[l:buf]["DeleteNum"] = trim(l:splitdiff[1])
+    elseif len(l:lines) == l:maxExpectedLines-1
+        let s:GitStatus[l:buf]["Dirty"] = "*"
+    endif
+
+    let s:GitStatus[l:buf]["IsGit"] = 1
+    call system("rm " . l:tmpfile)
+endfunction
+
+" Full or light update of git information
+" If the buffer is new, or it has been a while since updated, it will be full
+" update, otherwise, it will be a light update of status and changed lines
+" numbers
+function s:GitUpdate(isFullUpdate, ...)
+    if s:GitStatus["enabled"] == -1
+        return
+    endif
+
+    let l:buf = get(a:, 1, bufnr())
+    let l:flname = expand("#" . l:buf . ":p")
+    let l:parentDir = fnamemodify(l:flname, ":h")
+    let l:tmpfile = tempname()
+    let l:redir = l:tmpfile ." 2> /dev/null "
+
+    let l:cmd = ""
+    if a:isFullUpdate == 1
+        let l:cmd  = "git -C " . l:parentDir . " rev-parse --absolute-git-dir > " . l:redir . "&& "
+        let l:cmd .= "(git -C " . l:parentDir . " symbolic-ref HEAD || " 
+        let l:cmd .= "git -C " . l:parentDir . " rev-parse --short HEAD) >> " . l:redir . "&& "
+    endif
+    let l:cmd .= "([[ -z $(git -C " . l:parentDir . " status -s) ]] || echo '*') >> " . l:redir . "&& "
+    let l:cmd .= "git -C " . l:parentDir . " diff --numstat -- " . l:flname . " >> " . l:redir
+
+    " Async call to g:AsyncGitCallback()
+    exec "AsyncRun -post=call\\ g:AsyncGitCallback() " .
+                        \ "-text=" . a:isFullUpdate . ":" . l:tmpfile . ":" . l:buf . " " .
+                        \ l:cmd
+endfunction
+
+" Initializes git information
+function s:GitInit(buf)
+
+    if !has_key(s:GitStatus, a:buf)
+        let s:GitStatus[a:buf] = {"IsGit": -1, "RootDir": "", "BranchName": "", "Dirty": "",
+                                \ "InsertNum": 0, "DeleteNum": 0, "CacheExpired": 0}
+    endif
+
+    if s:GitStatus["enabled"] == -1
+        return
+    endif
+
+    let l:flname = expand("#" . a:buf . ":p")
+    " If we opened a dir or taglist, ignore.
+    if !filereadable(l:flname)
+        return
+    endif 
+
+    if s:GitStatus[a:buf]["CacheExpired"] > 0
+        " Dont update unless it has been a while
+        let s:GitStatus[a:buf]["CacheExpired"] -= 1
+        return
+    endif
+
+    " Restart Cache after update
+    let s:GitStatus[a:buf]["CacheExpired"] = s:GitNewCache
+
+    call s:GitUpdate(1, a:buf)
+
+endfunction
+
+" Whether we are in git repo
+function s:GitIsGit(buf)
+    return s:GitStatus[a:buf]["IsGit"]
+endfunction
+
+" Whether we are in git repo
+function s:GitRootDir(buf)
+    return s:GitStatus[a:buf]["RootDir"]
+endfunction
+
+" Git Branch of current repo
+function s:GitBranchName(buf)
+    return s:GitStatus[a:buf]["BranchName"]
+endfunction
+
+" If repo is dirty
+function s:GitDirty(buf)
+    return s:GitStatus[a:buf]["Dirty"]
+endfunction
+
+" Lines inserted for current file
+function s:GitInsertNum(buf)
+    return s:GitStatus[a:buf]["InsertNum"]
+endfunction
+
+" Lines deleted for current file
+function s:GitDeleteNum(buf)
+    return s:GitStatus[a:buf]["DeleteNum"]
+endfunction
+""""""""""""""""""""""""""""""""""""""" Autocmd
+" Always show statusline
+set laststatus=2
+
+augroup longsts
+    autocmd!
+    " Call our status line manager
+    autocmd WinEnter,BufEnter,BufDelete,SessionLoadPost,FileChangedShellPost * call s:ManageWinStl()
+    " Update git with every write
+    autocmd BufWritePost * call s:GitUpdate(-1)
+augroup END
+
+""""""""""""""""""""""""""""""""""""""" Colors of Status line 
 " Label colors
 " From left to right
 exec 'hi! ErrLbl guibg='                . s:errLblColor     . ' guifg='     . s:white
@@ -366,23 +478,10 @@ exec 'hi! InfBSepFln guibg='            . s:flnLblColor     . ' guifg='      . s
 exec 'hi! RC cterm=bold guibg='         . s:rcLbl           . ' guifg='      . s:white
 exec 'hi! RCSepInfB guibg='             . s:rcLbl           . ' guifg='      . s:infBColor
 
-exec 'hi! StatusLineNC guifg='          . s:clkLblColor     . ' cterm=NONE'
+exec 'hi! StraightLine guifg='          . s:purpel         . ' guibg='      . s:flnLblColor
+exec 'hi! VertSplit guibg='             . s:purpel         . ' guifg='      . s:flnLblColor
 
 " Background Colors
-unlet s:nLblColor s:iLblColor s:rLblColor s:vLblColor s:sLblColor s:oLblColor s:flnLblColor s:mFlgColor s:rFlgColor s:infBColor s:rcLbl s:errLblColor s:warnLblColor s:clkLblColor s:white s:orange
+unlet s:nLblColor s:iLblColor s:rLblColor s:vLblColor s:sLblColor s:oLblColor s:flnLblColor s:mFlgColor s:rFlgColor s:infBColor s:rcLbl s:errLblColor s:warnLblColor s:clkLblColor s:white s:orange s:purpel
 
-""""""""""""""""""""""""""""""""""""""" Autocmd
-" Always show statusline
-set laststatus=2
 
-" Set the statusline for all windows
-set statusline=%!SetStatusLine()
-
-" Set the statusline for taglist window
-let g:TaglistStatusLine = "" " Eval this var everytime main status line is updated
-augroup longsts
-    autocmd!
-    " For taglist, set its stl to TaglistStatusLine
-    autocmd FileType taglist setlocal statusline=%!g:TaglistStatusLine
-    autocmd BufEnter,BufWritePost * call s:GitUpdateInfo()
-augroup END
