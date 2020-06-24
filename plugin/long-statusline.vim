@@ -275,7 +275,7 @@ endfunction
 """""""""""""""""""""""""""""""""""""" Git Functions
 " Global git status for all buffers
 let s:GitStatus = {"enabled": 1}
-let s:GitNewCache = 100
+let s:GitNewCache = 1000
 
 " Debug Git
 function g:GitDebug()
