@@ -277,6 +277,11 @@ endfunction
 let s:GitStatus = {"enabled": 1}
 let s:GitNewCache = 100
 
+" Toggle Git
+function s:GitToggleGit()
+    let s:GitStatus = {"enabled": s:GitStatus["enabled"] * -1}
+endfunction
+
 " Async call back to read tmp file and update s:GitStatus
 function g:AsyncGitCallback()
     let l:res = split(g:asyncrun_text, ":")
@@ -420,6 +425,7 @@ augroup longsts
     autocmd WinEnter,BufEnter,BufDelete,SessionLoadPost,FileChangedShellPost * call s:ManageWinStl()
     " Update git with every write
     autocmd BufWritePost * call s:GitUpdate(-1)
+    command! -nargs=0 -bar GitToggle call s:GitToggleGit()
 augroup END
 
 """"""""""""""""""""""""""""""""""""""" Colors of Status line 
