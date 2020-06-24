@@ -341,11 +341,13 @@ function s:GitUpdate(isFullUpdate, ...)
     endif
     let l:cmd .= "([[ -z $(git -C " . l:parentDir . " status -s) ]] || echo '*') >> " . l:redir . "&& "
     let l:cmd .= "git -C " . l:parentDir . " diff --numstat -- " . l:flname . " >> " . l:redir
-
-    " Async call to g:AsyncGitCallback()
-    exec "AsyncRun -post=call\\ g:AsyncGitCallback() " .
-                        \ "-text=" . a:isFullUpdate . ":" . l:tmpfile . ":" . l:buf . " " .
-                        \ l:cmd
+    
+    if g:asyncrun_status != "running"
+        " Async call to g:AsyncGitCallback()
+        exec "AsyncRun -post=call\\ g:AsyncGitCallback() " .
+                            \ "-text=" . a:isFullUpdate . ":" . l:tmpfile . ":" . l:buf . " " .
+                            \ l:cmd
+    endif
 endfunction
 
 " Initializes git information
