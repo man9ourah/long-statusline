@@ -116,6 +116,7 @@ set shiftwidth=4
 set expandtab
 set nu
 set clipboard=unnamedplus
+" Auto nextline after 80 chars
 set textwidth=80
 " :W -> :w
 cnoreabbrev <expr> W ((getcmdtype() is# ':' && getcmdline() is# 'W')?('w'):('W'))
