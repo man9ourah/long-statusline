@@ -127,13 +127,10 @@ function s:BuildFlags(buf)
     let l:bufmodified = getbufvar(a:buf, "&modified")
     let l:bufreadonly = getbufvar(a:buf, "&readonly") || getbufvar(a:buf, "&modifiable") == 0
 
-    if(l:bufmodified)
-        let l:flags .= "%#MFlagSepFln#" . s:lASym . "%#MFlag# "
-    endif
-    
     if(l:bufreadonly)
         if(l:bufmodified)
             " M & RO
+            let l:flags .= "%#MFlagSepFln#" . s:lASym . "%#MFlag# "
             let l:flags .= "%#RFlagSepMod#" . s:lASym . "%#RFlag# " 
         else
             " RO
@@ -143,6 +140,7 @@ function s:BuildFlags(buf)
     else
         if(l:bufmodified)
             " M 
+            let l:flags .= "%#MFlagSepFln#" . s:lASym . "%#MFlag# "
             let l:flags .= "%#InfBSepMFlag#"
         else
             "None
