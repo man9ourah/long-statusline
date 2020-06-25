@@ -250,7 +250,7 @@ function s:ManageWinStl()
             
             else
                 " Otherwise status line should be straight line
-                call setwinvar(n, '&statusline', "%#StraightLine#%{repeat('━',\ winwidth(".n."))}[%c|%l|%2P]")
+                call setwinvar(n, '&statusline', "%#StraightLine#%{repeat('━',\ winwidth(".n."))}")
               
             end
 
