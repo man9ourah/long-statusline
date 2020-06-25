@@ -58,10 +58,10 @@ function s:GetFilename(buf)
 endfunction
 
 " Builds mode label
-function s:BuildModeLbl(buf, singleStl)
+function s:BuildModeLbl(winnum, singleStl)
     " If there are multiple status lines, then only output mode for current
     " window
-    if a:singleStl != 1 && a:buf != bufnr("%")
+    if a:singleStl != 1 && a:winnum != winnr()
         return
     endif
 
@@ -171,15 +171,15 @@ function s:BuildInfBar(buf)
 endfunction
 
 " Builds the main window status line
-function SetStatusLine(...)
-    let l:buf = get(a:, 1, bufnr())
-    let l:singleStl = get(a:, 2, 1)
-
+function SetStatusLine(winnum,...)
+    let l:singleStl = get(a:, 1, 1)
+    let l:buf = (l:singleStl == 1) ? bufnr() : winbufnr(a:winnum)
+    
     call s:GitInit(l:buf)
 
     " Start of main window status line
     " Mode
-    let l:sts = s:BuildModeLbl(l:buf, l:singleStl)
+    let l:sts = s:BuildModeLbl(a:winnum, l:singleStl)
 
     " File or function name
     let l:sts .= s:BuildFilenameLbl(l:buf, l:singleStl)
@@ -248,7 +248,7 @@ function s:ManageWinStl()
 
             elseif (n == bottomRightWin)
                 " Set bottom right Window with full status line for all windows
-                call setwinvar(n, '&statusline', "%!SetStatusLine()")
+                call setwinvar(n, '&statusline', "%!SetStatusLine(".n.")")
             
             else
                 " Otherwise status line should be straight line
@@ -265,8 +265,7 @@ function s:ManageWinStl()
         let s:GitStatus["enabled"] = -1
         for n in range(1, winnr('$'))
             if (l:wintype !=# 'popup' || l:wintype !=# 'autocmd' || l:wintype !=# "command")
-                let l:bufnum = winbufnr(n)
-                call setwinvar(n, '&statusline', "%!SetStatusLine(" . l:bufnum . ", -1)")
+                call setwinvar(n, '&statusline', "%!SetStatusLine(" . n . ", -1)")
             endif
         endfor
     endif
