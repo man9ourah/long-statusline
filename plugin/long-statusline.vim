@@ -10,17 +10,17 @@ let s:alwaysShowEW = 1
 " From left to right
 let s:errLblColor   = "#af0000"
 let s:warnLblColor  = "#ff8700"
-let s:clkLblColor   = "#082430"
+let s:clkLblColor   = "#0A2C3B"
 let s:nLblColor     = "#005F5F"
 let s:vLblColor     = "#87005F"
 let s:rLblColor     = "#52ba00"
 let s:iLblColor     = "#008700"
 let s:sLblColor     = "#0056c4"
 let s:oLblColor     = "#996BA0"
-let s:flnLblColor   = "#082430"
+let s:flnLblColor   = "#0A2C3B" "#082430
 let s:mFlgColor     = "#7e7e89"
-let s:rFlgColor     = "#3f3f45"
 let s:infBColor     = "#005f87"
+let s:disInfBColor  = "#3f3f45"
 let s:rcLbl         = "#87005F"
 
 " FG colors
@@ -39,6 +39,7 @@ let s:sepBSym       = "\ue0b8"
 let s:gitBranchSym  = "\ue0a0"
 let s:gitInsSym     = "\u2714"
 let s:gitDelSym     = "\u2718"
+let s:readonlySym   = "\ue0a2"
 
 """""""""""""""""""""""""""""""""""""""" Functions
 """""""""""""""""""""""""""""""""""""""" Status line
@@ -58,12 +59,7 @@ function s:GetFilename(buf)
 endfunction
 
 " Builds mode label
-function s:BuildModeLbl(winnum, singleStl)
-    " If there are multiple status lines, then only output mode for current
-    " window
-    if a:singleStl != 1 && a:winnum != winnr()
-        return
-    endif
+function s:BuildModeLbl(isActiveWindow)
 
     let l:currentMode = mode()
     let l:modeLbl = ""
@@ -103,10 +99,12 @@ function s:RightTruncate(str, maxlen)
 endfunction
 
 " Builds File name/function name label
-function s:BuildFilenameLbl(buf, singleStl)
+function s:BuildFilenameLbl(buf, isActiveWindow)
+    let l:bufreadonly = getbufvar(a:buf, "&readonly") || (getbufvar(a:buf, "&modifiable") == 0)
+    let l:middleText = "%#FlnLbl#" . s:GetFilename(a:buf)  . " " 
+    let l:middleText .= (l:bufreadonly) ? s:readonlySym . " " : ""
 
-    let l:middleText = "%#FlnLbl#" . s:GetFilename(a:buf)  . " "
-    if ((mode() ==? "i" || mode() ==? "r") && a:singleStl == 1) 
+    if ((mode() ==? "i" || mode() ==? "r") && a:isActiveWindow) 
         let l:funcProto = Tlist_Get_Tag_Prototype_By_Line()
 
         if (len(l:funcProto))
@@ -121,75 +119,66 @@ function s:BuildFilenameLbl(buf, singleStl)
     return " %<%(" . l:middleText . "%)"
 endfunction
 
-" Builds ReadOnly & Modified flags
-function s:BuildFlags(buf)
+" Builds modified flag
+function s:BuildFlags(buf, infBHighlight)
     let l:flags = ""
     let l:bufmodified = getbufvar(a:buf, "&modified")
-    let l:bufreadonly = getbufvar(a:buf, "&readonly") || getbufvar(a:buf, "&modifiable") == 0
 
-    if(l:bufreadonly)
-        if(l:bufmodified)
-            " M & RO
-            let l:flags .= "%#MFlagSepFln#" . s:lASym . "%#MFlag# "
-            let l:flags .= "%#RFlagSepMod#" . s:lASym . "%#RFlag# " 
-        else
-            " RO
-            let l:flags .= "%#RFlagSepFln#" . s:lASym . "%#RFlag# " 
-        endif
-        let l:flags .= "%#InfBSepRFlag#"
+    if(l:bufmodified)
+        " M 
+        let l:flags .= "%#MFlagSepFln#" . s:lASym . "%#MFlag# "
+        let l:flags .= "%#" . a:infBHighlight . "SepMFlag#"
     else
-        if(l:bufmodified)
-            " M 
-            let l:flags .= "%#MFlagSepFln#" . s:lASym . "%#MFlag# "
-            let l:flags .= "%#InfBSepMFlag#"
-        else
-            "None
-            let l:flags .= "%#InfBSepFln#"
-        endif
+        "None
+        let l:flags .= "%#" . a:infBHighlight . "SepFln#"
     endif
+
     return l:flags
 endfunction
 
 " Builds information bar
-function s:BuildInfBar(buf)
-    let l:infBar = s:lASym . "%#InfB# "
+function s:BuildInfBar(buf, infBHighlight)
+    let l:infBar = s:lASym . "%#" . a:infBHighlight . "# "
 
     if s:GitIsGit(a:buf) == 1
         let l:infBar .= s:gitBranchSym . " " . s:GitBranchName(a:buf) . s:GitDirty(a:buf)
-        let l:infBar .= "%#InfBStrick#" . s:sepASym . "  %#InfB#"
+        let l:infBar .= "%#" . a:infBHighlight . "Strick#" . s:sepASym . "  %#" . a:infBHighlight . "#"
         let l:infBar .= s:gitInsSym . " " . s:GitInsertNum(a:buf) . " "
         let l:infBar .= s:gitDelSym . " " . s:GitDeleteNum(a:buf)
-        let l:infBar .= "%#InfBStrick#" . s:sepASym . "  %#InfB#"
+        let l:infBar .= "%#" . a:infBHighlight . "Strick#" . s:sepASym . "  %#" . a:infBHighlight . "#"
     endif
   
-    let l:infBar .= s:cnumSym . " %c" . "%#InfBStrick#" . s:sepASym . "  %#InfB#"
+    let l:infBar .= s:cnumSym . " %c" . "%#" . a:infBHighlight . "Strick#" . s:sepASym . "  %#" . a:infBHighlight . "#"
     let l:infBar .= s:lnumSym . " %l"
-    let l:infBar .= " %#RCSepInfB#" . s:sepBSym . "  %#RC#%2P "
+    let l:infBar .= " %#RCSep" . a:infBHighlight . "#" . s:sepBSym . "  %#RC#%2P "
     return l:infBar
 endfunction
 
 " Builds the main window status line
-function SetStatusLine(winnum,...)
-    let l:singleStl = get(a:, 1, 1)
-    let l:buf = (l:singleStl == 1) ? bufnr() : winbufnr(a:winnum)
-    
+function SetStatusLine(winid)
+    let l:winnum = win_id2win(a:winid)
+    let l:buf = winbufnr(l:winnum)
+    let l:isActiveWindow = (l:winnum == winnr())
+
     call s:GitInit(l:buf)
 
     " Start of main window status line
     " Mode
-    let l:sts = s:BuildModeLbl(a:winnum, l:singleStl)
+    let l:sts = s:BuildModeLbl(l:isActiveWindow)
 
     " File or function name
-    let l:sts .= s:BuildFilenameLbl(l:buf, l:singleStl)
+    let l:sts .= s:BuildFilenameLbl(l:buf, l:isActiveWindow)
  
     " Left align
     let l:sts .= "%="
     
+    let l:infBHighlight = (l:isActiveWindow)? "InfB" : "DisInfB"
+
     " File flags
-    let l:sts .= s:BuildFlags(l:buf)
+    let l:sts .= s:BuildFlags(l:buf, l:infBHighlight)
   
     " Information bar
-    let l:sts .= s:BuildInfBar(l:buf)
+    let l:sts .= s:BuildInfBar(l:buf, l:infBHighlight)
 
     return l:sts
 endfunction
@@ -239,19 +228,20 @@ function s:ManageWinStl()
         if (l:wintype !=# 'popup' || l:wintype !=# 'autocmd' || l:wintype !=# "command")
             let l:bufnum = winbufnr(n)
             let l:winbufname = bufname(l:bufnum)
+            let l:winid = win_getid(n)
+            let l:isPrv = getwinvar(n, "&pvw")
+            let l:isHelp = getbufvar(l:winbufname, "&ft") ==# "help"
+            let l:isQf = getwinvar(n, '&syntax') == 'qf'
 
             if l:winbufname ==# g:TagList_title
                 " Set the taglist status line
                 call setwinvar(n, '&statusline', "%!SetTaglistSts()")
 
-            elseif (n == bottomRightWin)
-                " Set bottom right Window with full status line for all windows
-                call setwinvar(n, '&statusline', "%!SetStatusLine(".n.")")
-            
+            elseif l:isPrv || l:isHelp || l:isQf
+                call setwinvar(n, '&statusline', "%#StraightLine#%{repeat('━',\ winwidth(win_id2win(".l:winid.")))}")
             else
-                " Otherwise status line should be straight line
-                call setwinvar(n, '&statusline', "%#StraightLine#%{repeat('━',\ winwidth(".n."))}")
-              
+                " Other windows status lines
+                call setwinvar(n, '&statusline', "%!SetStatusLine(".l:winid.")")
             end
 
         endif
@@ -260,12 +250,8 @@ function s:ManageWinStl()
 
     " If we are in diff
     if l:isDiff != 0
+        " Disable Git, unnecessary overhead
         let s:GitStatus["enabled"] = -1
-        for n in range(1, winnr('$'))
-            if (l:wintype !=# 'popup' || l:wintype !=# 'autocmd' || l:wintype !=# "command")
-                call setwinvar(n, '&statusline', "%!SetStatusLine(" . n . ", -1)")
-            endif
-        endfor
     endif
 endfunction
 
@@ -287,20 +273,20 @@ endfunction
 " Async call back to read tmp file and update s:GitStatus
 function g:AsyncGitCallback()
     let l:res = split(g:asyncrun_text, ":")
-    let l:isFullUpdate = (l:res[0] == "1") ? 1 : -1
+    let l:isFullUpdate = str2nr(l:res[0]) 
     let l:tmpfile = l:res[1]
     let l:buf = l:res[2]
 
     if g:asyncrun_code != 0
         " If, for any reason, the command was not successfull, abort
         call system("rm " . l:tmpfile . " &")
-        let s:GitStatus["enabled"] = -1
+        let s:GitStatus[l:buf]["LocalEnable"] = -1
         return
     endif
 
     if !has_key(s:GitStatus, l:buf)
-        let s:GitStatus[l:buf] = {"IsGit": -1, "RootDir": "", "BranchName": "", "Dirty": "",
-                                \ "InsertNum": 0, "DeleteNum": 0, "CacheExpired": 0}
+        let s:GitStatus[l:buf] = {"LocalEnable" : 1 ,"IsGit": -1, "RootDir": "", "BranchName": "", 
+                                \ "Dirty": "", "InsertNum": 0, "DeleteNum": 0, "CacheExpired": 0}
     endif
 
     let l:lines = readfile(l:tmpfile)
@@ -334,19 +320,20 @@ endfunction
 " If the buffer is new, or it has been a while since updated, it will be full
 " update, otherwise, it will be a light update of status and changed lines
 " numbers
-function s:GitUpdate(isFullUpdate, ...)
-    if s:GitStatus["enabled"] == -1
+function s:GitUpdate(initOrWrite, ...)
+    let l:buf = get(a:, 1, bufnr())
+
+    if s:GitStatus["enabled"] == -1 || s:GitStatus[l:buf]["LocalEnable"] == -1
         return
     endif
-
-    let l:buf = get(a:, 1, bufnr())
+    
     let l:flname = expand("#" . l:buf . ":p")
     let l:parentDir = fnamemodify(l:flname, ":h")
     let l:tmpfile = tempname()
     let l:redir = l:tmpfile ." 2> /dev/null "
-
+    let l:isFullUpdate = a:initOrWrite == 1 || s:GitStatus[l:buf]["IsGit"] == -1 
     let l:cmd = ""
-    if a:isFullUpdate == 1
+    if l:isFullUpdate
         let l:cmd  = "git -C " . l:parentDir . " rev-parse --absolute-git-dir > " . l:redir . "&& "
         let l:cmd .= "(git -C " . l:parentDir . " symbolic-ref HEAD || " 
         let l:cmd .= "git -C " . l:parentDir . " rev-parse --short HEAD) >> " . l:redir . "&& "
@@ -357,8 +344,12 @@ function s:GitUpdate(isFullUpdate, ...)
     if g:asyncrun_status != "running"
         " Async call to g:AsyncGitCallback()
         exec "AsyncRun -post=call\\ g:AsyncGitCallback() " .
-                            \ "-text=" . a:isFullUpdate . ":" . l:tmpfile . ":" . l:buf . " " .
+                            \ "-text=" . l:isFullUpdate . ":" . l:tmpfile . ":" . l:buf . " " .
                             \ l:cmd
+    else
+        " If we could not execute it now, void the cache so that it is executed
+        " the next time 
+        let s:GitStatus[l:buf]["CacheExpired"] = 0
     endif
 endfunction
 
@@ -366,17 +357,18 @@ endfunction
 function s:GitInit(buf)
 
     if !has_key(s:GitStatus, a:buf)
-        let s:GitStatus[a:buf] = {"IsGit": -1, "RootDir": "", "BranchName": "", "Dirty": "",
-                                \ "InsertNum": 0, "DeleteNum": 0, "CacheExpired": 0}
+        let s:GitStatus[a:buf] = {"LocalEnable" : 1 ,"IsGit": -1, "RootDir": "", "BranchName": "", 
+                                \ "Dirty": "", "InsertNum": 0, "DeleteNum": 0, "CacheExpired": 0}
     endif
 
-    if s:GitStatus["enabled"] == -1
+    if s:GitStatus["enabled"] == -1 || s:GitStatus[a:buf]["LocalEnable"] == -1
         return
     endif
 
     let l:flname = expand("#" . a:buf . ":p")
     " If we opened a dir or taglist, ignore.
     if !filereadable(l:flname)
+        let s:GitStatus[a:buf]["LocalEnable"] = -1
         return
     endif 
 
@@ -439,65 +431,67 @@ augroup END
 """"""""""""""""""""""""""""""""""""""" Colors of Status line 
 " Label colors
 " From left to right
-exec 'hi! ErrLbl guibg='                . s:errLblColor     . ' guifg='     . s:white
-exec 'hi! ErrLblSepWrn guibg='          . s:warnLblColor    . ' guifg='     . s:errLblColor
-exec 'hi! ErrLblSepClk guibg='          . s:clkLblColor     . ' guifg='     . s:errLblColor
-exec 'hi! YcmErrorSection guibg='       . s:errLblColor
+exec 'hi! ErrLbl guibg='                    . s:errLblColor     . ' guifg='     . s:white
+exec 'hi! ErrLblSepWrn guibg='              . s:warnLblColor    . ' guifg='     . s:errLblColor
+exec 'hi! ErrLblSepClk guibg='              . s:clkLblColor     . ' guifg='     . s:errLblColor
+exec 'hi! YcmErrorSection guibg='           . s:errLblColor
 
-exec 'hi! WrnLbl guibg='                . s:warnLblColor    . ' guifg='     . s:white
-exec 'hi! WrnLblSepClk guibg='          . s:clkLblColor     . ' guifg='     . s:warnLblColor
-exec 'hi! YcmWarningSection guibg='     . s:warnLblColor
+exec 'hi! WrnLbl guibg='                    . s:warnLblColor    . ' guifg='     . s:white
+exec 'hi! WrnLblSepClk guibg='              . s:clkLblColor     . ' guifg='     . s:warnLblColor
+exec 'hi! YcmWarningSection guibg='         . s:warnLblColor
 
-exec 'hi! ClkLbl guibg='                . s:clkLblColor     . ' guifg='     . s:white
+exec 'hi! ClkLbl guibg='                    . s:clkLblColor     . ' guifg='     . s:white
 
-exec 'hi! NLbl cterm=bold guibg='       . s:nLblColor       . ' guifg='     . s:white
-exec 'hi! NLblSepFln guibg='            . s:flnLblColor     . ' guifg='     . s:nLblColor
-exec 'hi! NLblSepClk guibg='            . s:clkLblColor     . ' guifg='     . s:nLblColor
+exec 'hi! NLbl cterm=bold guibg='           . s:nLblColor       . ' guifg='     . s:white
+exec 'hi! NLblSepFln guibg='                . s:flnLblColor     . ' guifg='     . s:nLblColor
+exec 'hi! NLblSepClk guibg='                . s:clkLblColor     . ' guifg='     . s:nLblColor
 
-exec 'hi! VLbl cterm=bold guibg='       . s:vLblColor       . ' guifg='     . s:white
-exec 'hi! VLblSepFln guibg='            . s:flnLblColor     . ' guifg='     . s:vLblColor
-exec 'hi! VLblSepClk guibg='            . s:clkLblColor     . ' guifg='     . s:vLblColor
+exec 'hi! VLbl cterm=bold guibg='           . s:vLblColor       . ' guifg='     . s:white
+exec 'hi! VLblSepFln guibg='                . s:flnLblColor     . ' guifg='     . s:vLblColor
+exec 'hi! VLblSepClk guibg='                . s:clkLblColor     . ' guifg='     . s:vLblColor
 
-exec 'hi! RLbl cterm=bold guibg='       . s:rLblColor       . ' guifg='     . s:white
-exec 'hi! RLblSepFln guibg='            . s:flnLblColor     . ' guifg='     . s:rLblColor
-exec 'hi! RLblSepClk guibg='            . s:clkLblColor     . ' guifg='     . s:rLblColor
+exec 'hi! RLbl cterm=bold guibg='           . s:rLblColor       . ' guifg='     . s:white
+exec 'hi! RLblSepFln guibg='                . s:flnLblColor     . ' guifg='     . s:rLblColor
+exec 'hi! RLblSepClk guibg='                . s:clkLblColor     . ' guifg='     . s:rLblColor
 
-exec 'hi! ILbl cterm=bold guibg='       . s:iLblColor       . ' guifg='     . s:white 
-exec 'hi! ILblSepFln guibg='            . s:flnLblColor     . ' guifg='     . s:iLblColor
-exec 'hi! ILblSepClk guibg='            . s:clkLblColor     . ' guifg='     . s:iLblColor
+exec 'hi! ILbl cterm=bold guibg='           . s:iLblColor       . ' guifg='     . s:white 
+exec 'hi! ILblSepFln guibg='                . s:flnLblColor     . ' guifg='     . s:iLblColor
+exec 'hi! ILblSepClk guibg='                . s:clkLblColor     . ' guifg='     . s:iLblColor
 
-exec 'hi! SLbl cterm=bold guibg='       . s:sLblColor       . ' guifg='     . s:white
-exec 'hi! SLblSepFln guibg='            . s:flnLblColor     . ' guifg='     . s:sLblColor 
-exec 'hi! SLblSepClk guibg='            . s:clkLblColor     . ' guifg='     . s:sLblColor
+exec 'hi! SLbl cterm=bold guibg='           . s:sLblColor       . ' guifg='     . s:white
+exec 'hi! SLblSepFln guibg='                . s:flnLblColor     . ' guifg='     . s:sLblColor 
+exec 'hi! SLblSepClk guibg='                . s:clkLblColor     . ' guifg='     . s:sLblColor
 
-exec 'hi! OLbl cterm=bold guibg='       . s:oLblColor       . ' guifg='     . s:white
-exec 'hi! OLblSepFln guibg='            . s:flnLblColor     . ' guifg='     . s:oLblColor 
-exec 'hi! OLblSepClk guibg='            . s:clkLblColor     . ' guifg='     . s:oLblColor
+exec 'hi! OLbl cterm=bold guibg='           . s:oLblColor       . ' guifg='     . s:white
+exec 'hi! OLblSepFln guibg='                . s:flnLblColor     . ' guifg='     . s:oLblColor 
+exec 'hi! OLblSepClk guibg='                . s:clkLblColor     . ' guifg='     . s:oLblColor
 
-exec 'hi! FlnLbl cterm=None guibg='     . s:flnLblColor     . ' guifg='     . s:white
-exec 'hi! FuncLbl cterm=None guibg='    . s:flnLblColor     . ' guifg='     . s:orange
+exec 'hi! FlnLbl cterm=None guibg='         . s:flnLblColor     . ' guifg='     . s:white
+exec 'hi! FuncLbl cterm=None guibg='        . s:flnLblColor     . ' guifg='     . s:orange
 
 
-exec 'hi! MFlag cterm=bold guibg='      . s:mFlgColor 
-exec 'hi! MFlagSepFln guibg='           . s:flnLblColor     . ' guifg='      . s:mFlgColor
+exec 'hi! MFlag cterm=bold guibg='          . s:mFlgColor 
+exec 'hi! MFlagSepFln guibg='               . s:flnLblColor     . ' guifg='      . s:mFlgColor
 
-exec 'hi! RFlag cterm=bold guibg='      . s:rFlgColor 
-exec 'hi! RFlagSepMod guibg='           . s:mFlgColor       . ' guifg='      . s:rFlgColor
-exec 'hi! RFlagSepFln guibg='           . s:flnLblColor     . ' guifg='      . s:rFlgColor
+exec 'hi! InfB cterm=bold guibg='           . s:infBColor       . ' guifg='      . s:white
+exec 'hi! InfBStrick cterm=bold guibg='     . s:infBColor       . ' guifg='      . s:flnLblColor
+exec 'hi! InfBSepMFlag guibg='              . s:mFlgColor       . ' guifg='      . s:infBColor
+exec 'hi! InfBSepFln guibg='                . s:flnLblColor     . ' guifg='      . s:infBColor
 
-exec 'hi! InfB cterm=bold guibg='       . s:infBColor       . ' guifg='      . s:white
-exec 'hi! InfBStrick cterm=bold guibg=' . s:infBColor       . ' guifg='      . s:flnLblColor
-exec 'hi! InfBSepMFlag guibg='          . s:mFlgColor       . ' guifg='      . s:infBColor
-exec 'hi! InfBSepRFlag guibg='          . s:rFlgColor       . ' guifg='      . s:infBColor
-exec 'hi! InfBSepFln guibg='            . s:flnLblColor     . ' guifg='      . s:infBColor
+exec 'hi! DisInfB cterm=bold guibg='        . s:disInfBColor    . ' guifg='      . s:white
+exec 'hi! DisInfBStrick cterm=bold guibg='  . s:disInfBColor    . ' guifg='      . s:flnLblColor
+exec 'hi! DisInfBSepMFlag guibg='           . s:mFlgColor       . ' guifg='      . s:disInfBColor
+exec 'hi! DisInfBSepFln guibg='             . s:flnLblColor     . ' guifg='      . s:disInfBColor
 
-exec 'hi! RC cterm=bold guibg='         . s:rcLbl           . ' guifg='      . s:white
-exec 'hi! RCSepInfB guibg='             . s:rcLbl           . ' guifg='      . s:infBColor
+exec 'hi! RC cterm=bold guibg='             . s:rcLbl           . ' guifg='      . s:white
+exec 'hi! RCSepInfB guibg='                 . s:rcLbl           . ' guifg='      . s:infBColor
+exec 'hi! RCSepDisInfB guibg='              . s:rcLbl           . ' guifg='      . s:disInfBColor
 
-exec 'hi! StraightLine guifg='          . s:purpel         . ' guibg='      . s:flnLblColor
-exec 'hi! VertSplit guibg='             . s:purpel         . ' guifg='      . s:flnLblColor
+
+exec 'hi! StraightLine guifg='              . s:purpel          . ' guibg='      . s:flnLblColor
+exec 'hi! VertSplit guibg='                 . s:purpel          . ' guifg='      . s:flnLblColor
 
 " Background Colors
-unlet s:nLblColor s:iLblColor s:rLblColor s:vLblColor s:sLblColor s:oLblColor s:flnLblColor s:mFlgColor s:rFlgColor s:infBColor s:rcLbl s:errLblColor s:warnLblColor s:clkLblColor s:white s:orange s:purpel
+unlet s:nLblColor s:iLblColor s:rLblColor s:vLblColor s:sLblColor s:oLblColor s:flnLblColor s:mFlgColor s:infBColor s:disInfBColor s:rcLbl s:errLblColor s:warnLblColor s:clkLblColor s:white s:orange s:purpel
 
 

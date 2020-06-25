@@ -1,13 +1,6 @@
 Long StatusLine
 ===============
 
-A **single** vim status line that is located at the bottom, showing information
-for whatever the active window is. 
-
-See the comments in the demo below for more.
-
-![screenshot](screenshot.png)
-
 ## Dependencies
 
 * [YCM](https://github.com/ycm-core/YouCompleteMe): For errors and warnings.
