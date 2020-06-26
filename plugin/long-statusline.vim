@@ -439,6 +439,7 @@ set laststatus=2
 
 augroup longsts
     autocmd!
+    " Call our status line manager
     autocmd BufWinEnter,WinEnter,BufDelete,SessionLoadPost,FileChangedShellPost * call s:ManageWinStl()
     " Update git with every write
     autocmd BufWritePost * call s:GitUpdate(-1)
