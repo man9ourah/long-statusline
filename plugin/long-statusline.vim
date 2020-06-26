@@ -80,14 +80,14 @@ function s:GetFilename(buf)
 endfunction
 
 """"""""""""""" Status line Components
-" Builds File name & function name label
+" Builds file name & function name label
 function s:BuildFilenameLbl(buf, isActiveWindow)
     let l:bufreadonly = getbufvar(a:buf, "&readonly") || 
                 \ (getbufvar(a:buf, "&modifiable") == 0)
 
     let l:middleText = "%#FlnLbl#" . s:GetFilename(a:buf)  . " " . 
-                \ (l:bufreadonly) ? s:readonlySym . " " : ""
-    
+                \ ((l:bufreadonly) ? s:readonlySym . " " : "")
+
     let l:md = mode()
     if (l:md ==? "i" || l:md ==? "r") && (a:isActiveWindow)
         " Consult Taglist about nearby tag
@@ -136,7 +136,7 @@ function s:BuildInfBar(buf, infBHighlight)
 endfunction
 
 " Builds the status line
-function s:SetStatusLine(winid, nextToTaglist)
+function SetStatusLine(winid, nextToTaglist)
     let l:winnum = win_id2win(a:winid)
     let l:buf = winbufnr(l:winnum)
     let l:isActiveWindow = (l:winnum == winnr())
@@ -165,7 +165,7 @@ function s:SetStatusLine(winid, nextToTaglist)
 endfunction
 
 " Builds taglist's statusline
-function s:SetTaglistSts()
+function SetTaglistSts()
 
     let l:TaglistStatusLine = ""
     let l:errorsCount = youcompleteme#GetErrorCount()
@@ -222,8 +222,8 @@ function s:ManageWinStl()
                             \ "repeat('━',\ winwidth(win_id2win(".l:winid.")))" . 
                             \ "}")
 
-            elseif (n == l:bottomRightWin) && \
-                ((winwidth(n) + winwidth(1) + 1 ) == &columns)
+            elseif (n == l:bottomRightWin) && 
+                        \ ((winwidth(n) + winwidth(1) + 1 ) == &columns)
 
                 " Only two windows in the bottom
                 call setwinvar(n, '&statusline', "%!SetStatusLine(".l:winid.", 1)")
@@ -367,7 +367,7 @@ endfunction
 """"""""" Builds mode labels entries map
 function s:BuildModeMap(currentMode, isActiveWindow, nextToTaglist)
 
-    if (a:currentMode ==? 'n' || a:currentMode ==? 'c')
+    if (a:currentMode ==# 'n' || a:currentMode ==# 'c')
         let l:leftPart = (a:nextToTaglist) ? "%#NLblSepClk#". s:lASym : ""
         let l:leftPart .= "%#NLbl#"
         let l:middlePart = " NORMAL "
@@ -385,7 +385,7 @@ function s:BuildModeMap(currentMode, isActiveWindow, nextToTaglist)
         let l:middlePart = " V·BLOCK "
         let l:rightPart = "%#VLblSepFln#" . s:rASym
 
-    elseif (a:currentMode ==? 'r')
+    elseif (a:currentMode ==# 'R')
         let l:leftPart = (a:nextToTaglist) ? "%#RLblSepClk#" . s:lASym : ""
         let l:leftPart .= "%#RLbl#"
         let l:middlePart = " REPLACE "
@@ -420,7 +420,8 @@ function s:BuildModeMap(currentMode, isActiveWindow, nextToTaglist)
 endfunction
 
 " Build all possible mode labels and put them in s:modeMap
-let s:modes = ['n', 'i', 'R', 'v', 'V', "\<C-V>", 'c', 's', 'S', "\<C-S>", 't']
+let s:modes = ['n', 'i', 'R', 'v', 'V', "\<C-V>", 
+            \ 'c', 's', 'S', "\<C-S>", 't', 'r', '!']
 let s:modeMap = {0: {0: {}, 1: {}}, 1: {0: {}, 1: {}}}
 let s:Initialized = 0
 for isAct in range(2)
