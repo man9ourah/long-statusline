@@ -10,14 +10,15 @@ let s:alwaysShowEW = 1
 " From left to right
 let s:errLblColor   = "#af0000"
 let s:warnLblColor  = "#ff8700"
-let s:clkLblColor   = "#0A2C3B"
+let s:clkLblColor   = "#0a2c3b"
 let s:nLblColor     = "#005F5F"
 let s:vLblColor     = "#87005F"
 let s:rLblColor     = "#52ba00"
 let s:iLblColor     = "#008700"
 let s:sLblColor     = "#0056c4"
 let s:oLblColor     = "#996BA0"
-let s:flnLblColor   = "#0A2C3B" "#082430
+let s:disLblColor   = "#3f3f45"
+let s:flnLblColor   = "#0A2C3B"
 let s:mFlgColor     = "#7e7e89"
 let s:infBColor     = "#005f87"
 let s:disInfBColor  = "#3f3f45"
@@ -59,35 +60,60 @@ function s:GetFilename(buf)
 endfunction
 
 " Builds mode label
-function s:BuildModeLbl(isActiveWindow)
+function s:BuildModeLbl(isActiveWindow, nextToTaglist)
 
     let l:currentMode = mode()
-    let l:modeLbl = ""
 
     if (l:currentMode ==? 'n')
-        let l:modeLbl .= "%#NLblSepClk#". s:lASym   . "%#NLbl# NORMAL %#NLblSepFln#"    . s:rASym
+        let l:leftPart = (a:nextToTaglist) ? "%#NLblSepClk#". s:lASym : ""
+        let l:leftPart .= "%#NLbl#"
+        let l:middlePart = " NORMAL "
+        let l:rightPart = "%#NLblSepFln#" . s:rASym
 
     elseif (l:currentMode ==? 'v')
-        let l:modeLbl .= "%#VLblSepClk#" . s:lASym  . "%#VLbl# VISUAL %#VLblSepFln#"    . s:rASym
+        let l:leftPart = (a:nextToTaglist) ? "%#VLblSepClk#" . s:lASym  : ""
+        let l:leftPart .= "%#VLbl#"
+        let l:middlePart = " VISUAL "
+        let l:rightPart = "%#VLblSepFln#" . s:rASym
 
     elseif (l:currentMode ==? "\<C-V>")
-        let l:modeLbl .= "%#VLblSepClk#" . s:lASym  . "%#VLbl# V·BLOCK %#VLblSepFln#"   . s:rASym
+        let l:leftPart = (a:nextToTaglist) ? "%#VLblSepClk#" . s:lASym : "" 
+        let l:leftPart .= "%#VLbl#"
+        let l:middlePart = " V·BLOCK "
+        let l:rightPart = "%#VLblSepFln#" . s:rASym
 
     elseif (l:currentMode ==? 'r')
-        let l:modeLbl .= "%#RLblSepClk#" . s:lASym  . "%#RLbl# REPLACE %#RLblSepFln#"   . s:rASym
+        let l:leftPart = (a:nextToTaglist) ? "%#RLblSepClk#" . s:lASym : ""
+        let l:leftPart .= "%#RLbl#"
+        let l:middlePart = " REPLACE "
+        let l:rightPart = "%#RLblSepFln#" . s:rASym
 
     elseif (l:currentMode ==? 'i')
-        let l:modeLbl .= "%#ILblSepClk#" . s:lASym  . "%#ILbl# INSERT %#ILblSepFln#"    . s:rASym
+        let l:leftPart = (a:nextToTaglist) ? "%#ILblSepClk#" . s:lASym : ""
+        let l:leftPart .= "%#ILbl#"
+        let l:middlePart = " INSERT "
+        let l:rightPart = "%#ILblSepFln#" . s:rASym
 
     elseif (l:currentMode ==? 's' || l:currentMode == "\<C-S>")
-        let l:modeLbl .= "%#SLblSepClk#" . s:lASym  . "%#SLbl# SELECT %#SLblSepFln#"    . s:rASym
+        let l:leftPart = (a:nextToTaglist) ? "%#SLblSepClk#" . s:lASym : ""
+        let l:leftPart .= "%#SLbl#"
+        let l:middlePart = " SELECT "
+        let l:rightPart = "%#SLblSepFln#" . s:rASym
 
     else 
-        let l:modeLbl .= "%#OLblSepClk#" . s:lASym . "%#OLBL# OTHER %#OLblSepFln#" . s:rASym
+        let l:leftPart = (a:nextToTaglist) ? "%#OLblSepClk#" . s:lASym : ""
+        let l:leftPart  .= "%#OLBL#"
+        let l:middlePart = " OTHER "
+        let l:rightPart = "%#OLblSepFln#" . s:rASym
 
     endif
-
-    return l:modeLbl
+    
+    if a:isActiveWindow
+        return l:leftPart . l:middlePart . l:rightPart
+    else
+        return ((a:nextToTaglist) ? "%#DisLblSepClk#" . s:lASym : "") . 
+                \ "%#DisLbl#" . l:middlePart . "%#DisLblSepFln#" . s:rASym
+    endif
 endfunction
 
 " Right truncate str if len(str) > maxlen
@@ -155,7 +181,7 @@ function s:BuildInfBar(buf, infBHighlight)
 endfunction
 
 " Builds the main window status line
-function SetStatusLine(winid)
+function SetStatusLine(winid, nextToTaglist)
     let l:winnum = win_id2win(a:winid)
     let l:buf = winbufnr(l:winnum)
     let l:isActiveWindow = (l:winnum == winnr())
@@ -164,7 +190,7 @@ function SetStatusLine(winid)
 
     " Start of main window status line
     " Mode
-    let l:sts = s:BuildModeLbl(l:isActiveWindow)
+    let l:sts = s:BuildModeLbl(l:isActiveWindow, a:nextToTaglist)
 
     " File or function name
     let l:sts .= s:BuildFilenameLbl(l:buf, l:isActiveWindow)
@@ -212,12 +238,8 @@ function SetTaglistSts()
 endfunction
 
 " Manages how status line appear accross all windows.
-" Only two possible layouts: 
-" if we are in diff mode: both windows will have their own statusline, and
-" taglist is off.
-" Otherwise, only the bottom right window will have a long status line that
-" shows the information for whatever the current window and other windows will
-" have a straight line instead
+" Status lines colors will change if the window is active .
+" Popup, preview and qf windows will have a straight line as a status line
 function s:ManageWinStl()
     let l:isDiff = 0
     let l:bottomRightWin = winnr('$')
@@ -225,7 +247,7 @@ function s:ManageWinStl()
         let l:isDiff += getwinvar(n, "&diff")
         let l:wintype = win_gettype(n)
         " Ignore popup & autocmd
-        if (l:wintype !=# 'popup' || l:wintype !=# 'autocmd' || l:wintype !=# "command")
+        if (l:wintype !=# 'popup' || l:wintype !=# 'autocmd')
             let l:bufnum = winbufnr(n)
             let l:winbufname = bufname(l:bufnum)
             let l:winid = win_getid(n)
@@ -237,11 +259,14 @@ function s:ManageWinStl()
                 " Set the taglist status line
                 call setwinvar(n, '&statusline', "%!SetTaglistSts()")
 
-            elseif l:isPrv || l:isHelp || l:isQf
+            elseif l:isPrv || l:isHelp || l:isQf || l:wintype ==# "command"
                 call setwinvar(n, '&statusline', "%#StraightLine#%{repeat('━',\ winwidth(win_id2win(".l:winid.")))}")
+
+            elseif (n == l:bottomRightWin) && ((winwidth(n) + winwidth(1) + 1 ) == &columns)
+                call setwinvar(n, '&statusline', "%!SetStatusLine(".l:winid.", 1)")
             else
                 " Other windows status lines
-                call setwinvar(n, '&statusline', "%!SetStatusLine(".l:winid.")")
+                call setwinvar(n, '&statusline', "%!SetStatusLine(".l:winid.", 0)")
             end
 
         endif
@@ -271,49 +296,43 @@ function s:GitToggleGit()
 endfunction
 
 " Async call back to read tmp file and update s:GitStatus
-function g:AsyncGitCallback()
-    let l:res = split(g:asyncrun_text, ":")
-    let l:isFullUpdate = str2nr(l:res[0]) 
-    let l:tmpfile = l:res[1]
-    let l:buf = l:res[2]
+function g:AsyncGitCallback(isFullUpdate, tmpfile, buf)
 
     if g:asyncrun_code != 0
         " If, for any reason, the command was not successfull, abort
-        call system("rm " . l:tmpfile . " &")
-        let s:GitStatus[l:buf]["LocalEnable"] = -1
+        let s:GitStatus[a:buf]["LocalEnable"] = -1
         return
     endif
 
-    if !has_key(s:GitStatus, l:buf)
-        let s:GitStatus[l:buf] = {"LocalEnable" : 1 ,"IsGit": -1, "RootDir": "", "BranchName": "", 
+    if !has_key(s:GitStatus, a:buf)
+        let s:GitStatus[a:buf] = {"LocalEnable" : 1 ,"IsGit": -1, "RootDir": "", "BranchName": "", 
                                 \ "Dirty": "", "InsertNum": 0, "DeleteNum": 0, "CacheExpired": 0}
     endif
 
-    let l:lines = readfile(l:tmpfile)
+    let l:lines = readfile(a:tmpfile)
 
     let l:maxExpectedLines = 2
 
-    if l:isFullUpdate == 1
-        let s:GitStatus[l:buf]["RootDir"] = trim(fnamemodify(l:lines[0], ":h"))
-        let s:GitStatus[l:buf]["BranchName"] = trim(fnamemodify(l:lines[1], ":t"))
+    if a:isFullUpdate == 1
+        let s:GitStatus[a:buf]["RootDir"] = trim(fnamemodify(l:lines[0], ":h"))
+        let s:GitStatus[a:buf]["BranchName"] = trim(fnamemodify(l:lines[1], ":t"))
         let l:maxExpectedLines = 4
     endif
 
-    let s:GitStatus[l:buf]["InsertNum"] = 0
-    let s:GitStatus[l:buf]["DeleteNum"] = 0
-    let s:GitStatus[l:buf]["Dirty"] = ""
+    let s:GitStatus[a:buf]["InsertNum"] = 0
+    let s:GitStatus[a:buf]["DeleteNum"] = 0
+    let s:GitStatus[a:buf]["Dirty"] = ""
 
     if len(l:lines) == l:maxExpectedLines
-        let s:GitStatus[l:buf]["Dirty"] = "*"
+        let s:GitStatus[a:buf]["Dirty"] = "*"
         let l:splitdiff = split(l:lines[l:maxExpectedLines-1])
-        let s:GitStatus[l:buf]["InsertNum"] = trim(l:splitdiff[0])
-        let s:GitStatus[l:buf]["DeleteNum"] = trim(l:splitdiff[1])
+        let s:GitStatus[a:buf]["InsertNum"] = trim(l:splitdiff[0])
+        let s:GitStatus[a:buf]["DeleteNum"] = trim(l:splitdiff[1])
     elseif len(l:lines) == l:maxExpectedLines-1
-        let s:GitStatus[l:buf]["Dirty"] = "*"
+        let s:GitStatus[a:buf]["Dirty"] = "*"
     endif
 
-    let s:GitStatus[l:buf]["IsGit"] = 1
-    call system("rm " . l:tmpfile . " &")
+    let s:GitStatus[a:buf]["IsGit"] = 1
 endfunction
 
 " Full or light update of git information
@@ -343,9 +362,9 @@ function s:GitUpdate(initOrWrite, ...)
     
     if g:asyncrun_status != "running"
         " Async call to g:AsyncGitCallback()
-        exec "AsyncRun -post=call\\ g:AsyncGitCallback() " .
-                            \ "-text=" . l:isFullUpdate . ":" . l:tmpfile . ":" . l:buf . " " .
-                            \ l:cmd
+        call asyncrun#run("", 
+                    \ {"post": "call g:AsyncGitCallback(" . l:isFullUpdate . ", '" . l:tmpfile . "', " .  l:buf . ")"},
+                    \ l:cmd)
     else
         " If we could not execute it now, void the cache so that it is executed
         " the next time 
@@ -420,8 +439,7 @@ set laststatus=2
 
 augroup longsts
     autocmd!
-    " Call our status line manager
-    autocmd WinEnter,BufEnter,BufDelete,SessionLoadPost,FileChangedShellPost * call s:ManageWinStl()
+    autocmd BufWinEnter,WinEnter,BufDelete,SessionLoadPost,FileChangedShellPost * call s:ManageWinStl()
     " Update git with every write
     autocmd BufWritePost * call s:GitUpdate(-1)
     " GitToggle Command
@@ -466,6 +484,10 @@ exec 'hi! OLbl cterm=bold guibg='           . s:oLblColor       . ' guifg='     
 exec 'hi! OLblSepFln guibg='                . s:flnLblColor     . ' guifg='     . s:oLblColor 
 exec 'hi! OLblSepClk guibg='                . s:clkLblColor     . ' guifg='     . s:oLblColor
 
+exec 'hi! DisLbl cterm=bold guibg='         . s:disLblColor     . ' guifg='     . s:white
+exec 'hi! DisLblSepFln guibg='              . s:flnLblColor     . ' guifg='     . s:disLblColor 
+exec 'hi! DisLblSepClk guibg='              . s:clkLblColor     . ' guifg='     . s:disLblColor
+
 exec 'hi! FlnLbl cterm=None guibg='         . s:flnLblColor     . ' guifg='     . s:white
 exec 'hi! FuncLbl cterm=None guibg='        . s:flnLblColor     . ' guifg='     . s:orange
 
@@ -487,11 +509,14 @@ exec 'hi! RC cterm=bold guibg='             . s:rcLbl           . ' guifg='     
 exec 'hi! RCSepInfB guibg='                 . s:rcLbl           . ' guifg='      . s:infBColor
 exec 'hi! RCSepDisInfB guibg='              . s:rcLbl           . ' guifg='      . s:disInfBColor
 
+" Hide status line main colors
+exec 'hi! StatusLine guifg='                . s:flnLblColor     . ' guibg='      .s:flnLblColor 
+exec 'hi! StatusLineNC guibg='              .s:flnLblColor      . ' guifg='      .s:flnLblColor
 
 exec 'hi! StraightLine guifg='              . s:purpel          . ' guibg='      . s:flnLblColor
 exec 'hi! VertSplit guibg='                 . s:purpel          . ' guifg='      . s:flnLblColor
 
 " Background Colors
-unlet s:nLblColor s:iLblColor s:rLblColor s:vLblColor s:sLblColor s:oLblColor s:flnLblColor s:mFlgColor s:infBColor s:disInfBColor s:rcLbl s:errLblColor s:warnLblColor s:clkLblColor s:white s:orange s:purpel
+unlet s:nLblColor s:iLblColor s:rLblColor s:vLblColor s:sLblColor s:oLblColor s:disLblColor s:flnLblColor s:mFlgColor s:infBColor s:disInfBColor s:rcLbl s:errLblColor s:warnLblColor s:clkLblColor s:white s:orange s:purpel
 
 
