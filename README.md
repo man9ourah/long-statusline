@@ -1,6 +1,10 @@
 Long StatusLine
 ===============
 
+## Demo
+
+![screenshot](screenshot.png)
+
 ## Dependencies
 
 * [YCM](https://github.com/ycm-core/YouCompleteMe): For errors and warnings.
