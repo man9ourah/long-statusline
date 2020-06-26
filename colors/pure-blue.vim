@@ -72,11 +72,6 @@ exec "hi MyTagListTagScope guifg=".s:green." guibg=NONE"
 exec "hi IndentGuidesOdd  guibg=#323232"
 exec "hi IndentGuidesEven guibg=".s:darkgrey
 
-" Hide status line main colors
-exec "hi StatusLine guifg=".s:darkblue." guibg=".s:darkblue
-exec "hi StatusLineNC guibg=".s:darkblue." guifg=".s:darkblue
-
-
 " Diff
 exec "hi DiffChange	guibg=".s:darkblue." guifg=".s:mutewhite
 exec "hi DiffText gui=NONE cterm=NONE guibg=".s:red." guifg=".s:mutewhite
