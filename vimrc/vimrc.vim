@@ -88,9 +88,7 @@ let g:indent_guides_guide_size = 1
 """""""""""""""""""""""""""""""""""""""" Taglist
 " Use universal ctags
 let Tlist_Ctags_Cmd="ctags" 
-if !&diff
-    let Tlist_Auto_Open=1
-endif
+let Tlist_Auto_Open=1
 let Tlist_Exit_OnlyWindow = 1
 let Tlist_Auto_Highlight_Tag = 1
 let Tlist_Use_SingleClick = 1

@@ -9,9 +9,6 @@ if exists('g:loaded_statusline')
 endif
 let g:loaded_statusline = 1
 
-" Error & Warn: 0=> only show when > 0
-let s:alwaysShowEW = 1
-
 " Background Colors
 " From left to right
 let s:errLblColor   = "#af0000"
@@ -67,9 +64,6 @@ endfunction
 " If inside git repo, get path relative to git root, otherwise show full path
 function s:GetFilename(buf)
     let l:flname = expand("#" . a:buf . ":p")
-    if stridx(l:flname, g:TagList_title) != -1
-        return g:TagList_title
-    endif
     
     if s:GitStatus[a:buf]["IsGit"]
         return fnamemodify(s:GitStatus[a:buf]["RootDir"], ":t") . 
@@ -107,29 +101,30 @@ function s:BuildFilenameLbl(buf, isActiveWindow)
 endfunction
 
 " Builds information bar [Git, Col&Ln, Percentage]
-function s:BuildInfBar(buf, infBHighlight)
-    let l:infBar = s:lASym . "%#" . a:infBHighlight . "# "
+function s:BuildInfBar(buf, isActiveWindow)
+    let l:infBHighlight = (a:isActiveWindow)? "InfB" : "DisInfB"
+    let l:infBar = s:lASym . "%#" . l:infBHighlight . "# "
 
     if s:GitStatus[a:buf]["IsGit"]
         let l:infBar .= s:gitBranchSym . " " . 
                     \ s:GitStatus[a:buf]["BranchName"] . s:GitStatus[a:buf]["Dirty"]
 
-        let l:infBar .= "%#" . a:infBHighlight . "Strick#" . 
-                    \ s:sepASym . "  %#" . a:infBHighlight . "#"
+        let l:infBar .= "%#" . l:infBHighlight . "Strick#" . 
+                    \ s:sepASym . "  %#" . l:infBHighlight . "#"
 
         let l:infBar .= s:gitInsSym . " " . s:GitStatus[a:buf]["InsertNum"] . " "
         let l:infBar .= s:gitDelSym . " " . s:GitStatus[a:buf]["DeleteNum"]
 
-        let l:infBar .= "%#" . a:infBHighlight . "Strick#" . 
-                    \ s:sepASym . "  %#" . a:infBHighlight . "#"
+        let l:infBar .= "%#" . l:infBHighlight . "Strick#" . 
+                    \ s:sepASym . "  %#" . l:infBHighlight . "#"
 
     endif
   
-    let l:infBar .= s:cnumSym . " %c" . "%#" . a:infBHighlight . 
-                \ "Strick#" . s:sepASym . "  %#" . a:infBHighlight . "#"
+    let l:infBar .= s:cnumSym . " %c" . "%#" . l:infBHighlight . 
+                \ "Strick#" . s:sepASym . "  %#" . l:infBHighlight . "#"
 
     let l:infBar .= s:lnumSym . " %l"
-    let l:infBar .= " %#RCSep" . a:infBHighlight . "#" . 
+    let l:infBar .= " %#RCSep" . l:infBHighlight . "#" . 
                 \ s:sepBSym . "  %#RC#%2P "
 
     return l:infBar
@@ -153,13 +148,12 @@ function SetStatusLine(winid, nextToTaglist)
     " Left align
     let l:sts .= "%="
     
-    let l:infBHighlight = (l:isActiveWindow)? "InfB" : "DisInfB"
 
     " Modified flag
     let l:sts .= s:modifiedFlag[getbufvar(l:buf, "&modified")][l:isActiveWindow]
   
     " Information bar
-    let l:sts .= s:BuildInfBar(l:buf, l:infBHighlight)
+    let l:sts .= s:BuildInfBar(l:buf, l:isActiveWindow)
 
     return l:sts
 endfunction
@@ -167,39 +161,20 @@ endfunction
 " Builds taglist's statusline
 function SetTaglistSts()
 
-    let l:TaglistStatusLine = ""
-    let l:errorsCount = youcompleteme#GetErrorCount()
-    let l:warnsCount = youcompleteme#GetWarningCount()
-
-    if (l:errorsCount > 0 && l:warnsCount > 0) || s:alwaysShowEW
-        let l:TaglistStatusLine = "%#ErrLbl# " . l:errorsCount . " "
-        let l:TaglistStatusLine .= "%#ErrLblSepWrn#" . s:rASym
-        let l:TaglistStatusLine .= "%#WrnLbl# " . l:warnsCount . " "
-        let l:TaglistStatusLine .= "%#WrnLblSepClk#" . s:rASym
-
-    elseif l:errorsCount > 0
-        let l:TaglistStatusLine = "%#ErrLbl# " . l:errorsCount . " "
-        let l:TaglistStatusLine .= "%#ErrLblSepClk#" . s:rASym
-
-    elseif l:warnsCount > 0
-        let l:TaglistStatusLine = "%#WrnLbl# " . l:warnsCount . " "
-        let l:TaglistStatusLine .= "%#WrnLblSepClk#" . s:rASym
-
-    endif
+    let l:TaglistStatusLine = "%#ErrLbl# " . youcompleteme#GetErrorCount() . " " . 
+                \ "%#ErrLblSepWrn#" . s:rASym . 
+                \ "%#WrnLbl# " . youcompleteme#GetWarningCount() . " " . 
+                \ "%#WrnLblSepClk#" . s:rASym
 
     " Finally, add time
-    let l:TaglistStatusLine .= "%#ClkLbl#%= " . strftime('%b %d %Y %l:%M %p')
-
-    return l:TaglistStatusLine
+    return l:TaglistStatusLine . "%#ClkLbl#%= " . strftime('%b %d %Y %l:%M %p')
 endfunction
 
 " Status lines manager
 function s:ManageWinStl()
-    let l:isDiff = 0
     let l:bottomRightWin = winnr('$')
 
     for n in range(1, bottomRightWin)
-        let l:isDiff += getwinvar(n, "&diff")
         let l:wintype = win_gettype(n)
 
         " Ignore popup & autocmd
@@ -236,12 +211,6 @@ function s:ManageWinStl()
         endif
 
     endfor
-
-    " If we are in diff
-    if l:isDiff != 0
-        " Disable Git, unnecessary overhead
-        let s:GitStatus["enabled"] = 0
-    endif
 endfunction
 
 """""""""""""""" Git
