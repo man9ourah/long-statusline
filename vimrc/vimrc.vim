@@ -130,7 +130,7 @@ set scrolloff=4
 set sidescrolloff=4
 " Garbage text
 set t_TI= t_TE=
-" Default update time it too long! (=4000)
+" Default update time is too long! (=4000)
 set updatetime=2000
 " Remove search hls
 nnoremap <silent> <f2> :nohls<CR>
