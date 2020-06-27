@@ -119,6 +119,7 @@ function s:BuildInfBar(buf, isActiveWindow)
         else
             let l:infBar .= s:gitUnTckSym
         endif
+
         let l:infBar .= "%#" . l:infBHighlight . "Strick#" . 
                     \ s:sepASym . "  %#" . l:infBHighlight . "#"
 
@@ -164,19 +165,17 @@ endfunction
 
 " Builds taglist's statusline
 function SetTaglistSts()
-
-    let l:TaglistStatusLine = "%#ErrLbl# " . youcompleteme#GetErrorCount() . " " . 
+    return "%#ErrLbl# " . youcompleteme#GetErrorCount() . " " . 
                 \ "%#ErrLblSepWrn#" . s:rASym . 
                 \ "%#WrnLbl# " . youcompleteme#GetWarningCount() . " " . 
-                \ "%#WrnLblSepClk#" . s:rASym
-
-    " Finally, add time
-    return l:TaglistStatusLine . "%#ClkLbl#%= " . strftime('%b %d %Y %l:%M %p')
+                \ "%#WrnLblSepClk#" . s:rASym . 
+                \ "%#ClkLbl#%= " . strftime('%b %d %Y %l:%M %p')
 endfunction
 
 " Status lines manager
 function s:ManageWinStl()
     let l:bottomRightWin = winnr('$')
+    let l:taglistWin = -1
 
     for n in range(1, bottomRightWin)
         let l:wintype = win_gettype(n)
@@ -193,6 +192,7 @@ function s:ManageWinStl()
             if l:winbufname ==# g:TagList_title
                 " Set the taglist status line
                 call setwinvar(n, '&statusline', "%!SetTaglistSts()")
+                let l:taglistWin = n
 
             elseif l:isPrv || l:isHelp || l:isQf || l:wintype ==# "command"
                 " Set straight line
@@ -202,9 +202,11 @@ function s:ManageWinStl()
                             \ "}")
 
             elseif (n == l:bottomRightWin) && 
-                        \ ((winwidth(n) + winwidth(1) + 1 ) == &columns)
+                        \ ((winwidth(n) + winwidth(1) + 1 ) == &columns) && 
+                        \ l:taglistWin == 1
 
                 " Only two windows in the bottom
+                " Two arrows for mode label
                 call setwinvar(n, '&statusline', "%!SetStatusLine(".l:winid.", 1)")
 
             else
@@ -308,6 +310,8 @@ function s:GitUpdate(initOrWrite, ...)
 endfunction
 
 " Initializes git information
+" 1 out of GitMaxCacheExp times it will just decrement the cache timer, if the
+" cache is expired it will issue an async call to update Git
 function s:GitInit(buf)
 
     if !has_key(s:GitStatus, a:buf)
@@ -340,80 +344,88 @@ function s:GitInit(buf)
 endfunction
 
 """"""""""""""""""""""""""""""""""""""" Initialization
-""""""""" Builds mode labels entries map
-function s:BuildModeMap(currentMode, isActiveWindow, nextToTaglist)
+" Flatten all dictionaries.. zero calculation at load & retrieval time
+" Mode labels dictionary
+" [disabled|enabled][right arrow|left&right arrows1][mode()]
+let s:modeMap = 
+        \ {
+            \ "0":{
+                \ "0":{
+                    \ "n":      "%#DisLbl# NORMAL %#DisLblSepFln#"    .    s:rASym,
+                    \ "c":      "%#DisLbl# NORMAL %#DisLblSepFln#"    .    s:rASym,
+                    \ "V":      "%#DisLbl# VISUAL %#DisLblSepFln#"    .    s:rASym,
+                    \ "v":      "%#DisLbl# VISUAL %#DisLblSepFln#"    .    s:rASym,
+                    \ "\<C-V>": "%#DisLbl# V·BLOCK %#DisLblSepFln#"   .    s:rASym,
+                    \ "i":      "%#DisLbl# INSERT %#DisLblSepFln#"    .    s:rASym,
+                    \ "R":      "%#DisLbl# REPLACE %#DisLblSepFln#"   .    s:rASym,
+                    \ "s":      "%#DisLbl# SELECT %#DisLblSepFln#"    .    s:rASym,
+                    \ "S":      "%#DisLbl# SELECT %#DisLblSepFln#"    .    s:rASym,
+                    \ "\<C-S>": "%#DisLbl# SELECT %#DisLblSepFln#"    .    s:rASym,
+                    \ "!":      "%#DisLbl# OTHER %#DisLblSepFln#"     .    s:rASym,
+                    \ "t":      "%#DisLbl# OTHER %#DisLblSepFln#"     .    s:rASym,
+                    \ "r":      "%#DisLbl# OTHER %#DisLblSepFln#"     .    s:rASym,
+                \ }, "1":{
+                    \ "n":      "%#DisLblSepClk#" . s:lASym . "%#DisLbl# NORMAL %#DisLblSepFln#"    .    s:rASym,
+                    \ "c":      "%#DisLblSepClk#" . s:lASym . "%#DisLbl# NORMAL %#DisLblSepFln#"    .    s:rASym,
+                    \ "V":      "%#DisLblSepClk#" . s:lASym . "%#DisLbl# VISUAL %#DisLblSepFln#"    .    s:rASym,
+                    \ "v":      "%#DisLblSepClk#" . s:lASym . "%#DisLbl# VISUAL %#DisLblSepFln#"    .    s:rASym,
+                    \ "\<C-V>": "%#DisLblSepClk#" . s:lASym . "%#DisLbl# V·BLOCK %#DisLblSepFln#"   .    s:rASym,
+                    \ "i":      "%#DisLblSepClk#" . s:lASym . "%#DisLbl# INSERT %#DisLblSepFln#"    .    s:rASym,
+                    \ "R":      "%#DisLblSepClk#" . s:lASym . "%#DisLbl# REPLACE %#DisLblSepFln#"   .    s:rASym,
+                    \ "s":      "%#DisLblSepClk#" . s:lASym . "%#DisLbl# SELECT %#DisLblSepFln#"    .    s:rASym,
+                    \ "S":      "%#DisLblSepClk#" . s:lASym . "%#DisLbl# SELECT %#DisLblSepFln#"    .    s:rASym,
+                    \ "\<C-S>": "%#DisLblSepClk#" . s:lASym . "%#DisLbl# SELECT %#DisLblSepFln#"    .    s:rASym,
+                    \ "!":      "%#DisLblSepClk#" . s:lASym . "%#DisLbl# OTHER %#DisLblSepFln#"     .    s:rASym,
+                    \ "t":      "%#DisLblSepClk#" . s:lASym . "%#DisLbl# OTHER %#DisLblSepFln#"     .    s:rASym,
+                    \ "r":      "%#DisLblSepClk#" . s:lASym . "%#DisLbl# OTHER %#DisLblSepFln#"     .    s:rASym,
+                \ }
+            \ }, "1":{
+                \ "0":{
+                    \ "n":      "%#NLbl# NORMAL %#NLblSepFln#"    .    s:rASym,
+                    \ "c":      "%#NLbl# NORMAL %#NLblSepFln#"    .    s:rASym,
+                    \ "V":      "%#VLbl# VISUAL %#VLblSepFln#"    .    s:rASym,
+                    \ "v":      "%#VLbl# VISUAL %#VLblSepFln#"    .    s:rASym,
+                    \ "\<C-V>": "%#VLbl# V·BLOCK %#VLblSepFln#"   .    s:rASym,
+                    \ "i":      "%#ILbl# INSERT %#ILblSepFln#"    .    s:rASym,
+                    \ "R":      "%#RLbl# REPLACE %#RLblSepFln#"   .    s:rASym,
+                    \ "s":      "%#SLbl# SELECT %#SLblSepFln#"    .    s:rASym,
+                    \ "S":      "%#SLbl# SELECT %#SLblSepFln#"    .    s:rASym,
+                    \ "\<C-S>": "%#SLbl# SELECT %#SLblSepFln#"    .    s:rASym,
+                    \ "!":      "%#OLBL# OTHER %#OLblSepFln#"     .    s:rASym,
+                    \ "t":      "%#OLBL# OTHER %#OLblSepFln#"     .    s:rASym,
+                    \ "r":      "%#OLBL# OTHER %#OLblSepFln#"     .    s:rASym,
+                \ },"1":{ 
+                    \ "n":      "%#NLblSepClk#" . s:lASym . "%#NLbl# NORMAL %#NLblSepFln#"    .    s:rASym,
+                    \ "c":      "%#NLblSepClk#" . s:lASym . "%#NLbl# NORMAL %#NLblSepFln#"    .    s:rASym,
+                    \ "V":      "%#VLblSepClk#" . s:lASym . "%#VLbl# VISUAL %#VLblSepFln#"    .    s:rASym,
+                    \ "v":      "%#VLblSepClk#" . s:lASym . "%#VLbl# VISUAL %#VLblSepFln#"    .    s:rASym,
+                    \ "\<C-V>": "%#VLblSepClk#" . s:lASym . "%#VLbl# V·BLOCK %#VLblSepFln#"   .    s:rASym,
+                    \ "i":      "%#ILblSepClk#" . s:lASym . "%#ILbl# INSERT %#ILblSepFln#"    .    s:rASym,
+                    \ "R":      "%#RLblSepClk#" . s:lASym . "%#RLbl# REPLACE %#RLblSepFln#"   .    s:rASym,
+                    \ "s":      "%#SLblSepClk#" . s:lASym . "%#SLbl# SELECT %#SLblSepFln#"    .    s:rASym,
+                    \ "S":      "%#SLblSepClk#" . s:lASym . "%#SLbl# SELECT %#SLblSepFln#"    .    s:rASym,
+                    \ "\<C-S>": "%#SLblSepClk#" . s:lASym . "%#SLbl# SELECT %#SLblSepFln#"    .    s:rASym,
+                    \ "!":      "%#OLblSepClk#" . s:lASym . "%#OLBL# OTHER %#OLblSepFln#"     .    s:rASym,
+                    \ "t":      "%#OLblSepClk#" . s:lASym . "%#OLBL# OTHER %#OLblSepFln#"     .    s:rASym,
+                    \ "r":      "%#OLblSepClk#" . s:lASym . "%#OLBL# OTHER %#OLblSepFln#"     .    s:rASym,
+                \ }
+            \ }
+        \ }
 
-    if (a:currentMode ==# 'n' || a:currentMode ==# 'c')
-        let l:leftPart = (a:nextToTaglist) ? "%#NLblSepClk#". s:lASym : ""
-        let l:leftPart .= "%#NLbl#"
-        let l:middlePart = " NORMAL "
-        let l:rightPart = "%#NLblSepFln#" . s:rASym
 
-    elseif (a:currentMode ==? 'v')
-        let l:leftPart = (a:nextToTaglist) ? "%#VLblSepClk#" . s:lASym  : ""
-        let l:leftPart .= "%#VLbl#"
-        let l:middlePart = " VISUAL "
-        let l:rightPart = "%#VLblSepFln#" . s:rASym
-
-    elseif (a:currentMode ==? "\<C-V>")
-        let l:leftPart = (a:nextToTaglist) ? "%#VLblSepClk#" . s:lASym : "" 
-        let l:leftPart .= "%#VLbl#"
-        let l:middlePart = " V·BLOCK "
-        let l:rightPart = "%#VLblSepFln#" . s:rASym
-
-    elseif (a:currentMode ==# 'R')
-        let l:leftPart = (a:nextToTaglist) ? "%#RLblSepClk#" . s:lASym : ""
-        let l:leftPart .= "%#RLbl#"
-        let l:middlePart = " REPLACE "
-        let l:rightPart = "%#RLblSepFln#" . s:rASym
-
-    elseif (a:currentMode ==? 'i')
-        let l:leftPart = (a:nextToTaglist) ? "%#ILblSepClk#" . s:lASym : ""
-        let l:leftPart .= "%#ILbl#"
-        let l:middlePart = " INSERT "
-        let l:rightPart = "%#ILblSepFln#" . s:rASym
-
-    elseif (a:currentMode ==? 's' || a:currentMode == "\<C-S>")
-        let l:leftPart = (a:nextToTaglist) ? "%#SLblSepClk#" . s:lASym : ""
-        let l:leftPart .= "%#SLbl#"
-        let l:middlePart = " SELECT "
-        let l:rightPart = "%#SLblSepFln#" . s:rASym
-
-    else 
-        let l:leftPart = (a:nextToTaglist) ? "%#OLblSepClk#" . s:lASym : ""
-        let l:leftPart  .= "%#OLBL#"
-        let l:middlePart = " OTHER "
-        let l:rightPart = "%#OLblSepFln#" . s:rASym
-
-    endif
-    
-    if a:isActiveWindow
-        return l:leftPart . l:middlePart . l:rightPart
-    else
-        return ((a:nextToTaglist) ? "%#DisLblSepClk#" . s:lASym : "") . 
-                \ "%#DisLbl#" . l:middlePart . "%#DisLblSepFln#" . s:rASym
-    endif
-endfunction
-
-" Build all possible mode labels and put them in s:modeMap
-let s:modes = ['n', 'i', 'R', 'v', 'V', "\<C-V>", 
-            \ 'c', 's', 'S', "\<C-S>", 't', 'r', '!']
-let s:modeMap = {0: {0: {}, 1: {}}, 1: {0: {}, 1: {}}}
-let s:Initialized = 0
-for isAct in range(2)
-    for isNextToTaglist in range(2)
-        for md in s:modes
-            let s:modeMap[isAct][isNextToTaglist][md] = s:BuildModeMap(md, isAct, isNextToTaglist)
-        endfor
-    endfor
-endfor
-
-" Build modified flag dictionary
-let s:modifiedFlag = {0: {0: "%#DisInfBSepFln#", 1: "%#InfBSepFln#"},
-            \ 1: {0: "%#MFlagSepFln#" . s:lASym . "%#MFlag# %#DisInfBSepMFlag#", 
-                \ 1: "%#MFlagSepFln#" . s:lASym . "%#MFlag# %#InfBSepMFlag#"}}
+" Modified flag dictionary
+let s:modifiedFlag = 
+        \ {
+            \ 0:{
+                \ 0: "%#DisInfBSepFln#", 1: "%#InfBSepFln#"
+            \ }, 1:{
+                \ 0: "%#MFlagSepFln#" . s:lASym . "%#MFlag# %#DisInfBSepMFlag#", 
+                \ 1: "%#MFlagSepFln#" . s:lASym . "%#MFlag# %#InfBSepMFlag#"
+            \ }
+        \ }
 
 """""""""""""""" Status line highlight groups
+" All flattened 
 " From left to right
 exec 'hi! ErrLbl guibg='                    . s:errLblColor     . ' guifg='     . s:white
 exec 'hi! ErrLblSepWrn guibg='              . s:warnLblColor    . ' guifg='     . s:errLblColor
