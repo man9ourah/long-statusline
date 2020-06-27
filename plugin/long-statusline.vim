@@ -175,7 +175,7 @@ endfunction
 " Status lines manager
 function s:ManageWinStl()
     let l:bottomRightWin = winnr('$')
-    let l:taglistWin = -1
+    let l:taglistWin = 0
 
     for n in range(1, bottomRightWin)
         let l:wintype = win_gettype(n)
@@ -201,11 +201,11 @@ function s:ManageWinStl()
                             \ "repeat('━',\ winwidth(win_id2win(".l:winid.")))" . 
                             \ "}")
 
-            elseif (n == l:bottomRightWin) && 
-                        \ ((winwidth(n) + winwidth(1) + 1 ) == &columns) && 
-                        \ l:taglistWin == 1
+            elseif (n == l:bottomRightWin) && l:taglistWin && 
+                        \ ((winwidth(n) + winwidth(l:taglistWin) + 1 ) == &columns)
 
                 " Only two windows in the bottom
+                " One of them is taglist
                 " Two arrows for mode label
                 call setwinvar(n, '&statusline', "%!SetStatusLine(".l:winid.", 1)")
 
