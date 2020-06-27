@@ -105,6 +105,15 @@ let vim_markdown_preview_github=1
 let vim_markdown_preview_browser='Mozilla Firefox'
 let vim_markdown_preview_temp_file=1
 
+""""""""""""""""""""""""""""""""""""""" Autoclose 
+inoremap " ""<left>
+inoremap ' ''<left>
+inoremap ( ()<left>
+inoremap [ []<left>
+inoremap { {}<left>
+inoremap {<CR> {<CR>}<ESC>O
+inoremap {;<CR> {<CR>};<ESC>O
+
 """"""""""""""""""""""""""""""""""""""" Misc.
 " show existing tab with 4 spaces width
 set tabstop=4
