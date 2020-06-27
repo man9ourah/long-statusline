@@ -47,7 +47,7 @@ let s:readonlySym   = "\ue0a2"
 
 " Global git status for all buffers
 let s:GitStatus = {"enabled": 1}
-" How many time until we update Git information without a write
+" How many times until we update Git information without a write
 let s:GitMaxCacheExp = 1000
 
 """""""""""""""""""""""""""""""""""""""" Functions
@@ -83,7 +83,7 @@ function s:BuildFilenameLbl(buf, isActiveWindow)
                 \ ((l:bufreadonly) ? s:readonlySym . " " : "")
 
     let l:md = mode()
-    if (l:md ==? "i" || l:md ==? "r") && (a:isActiveWindow)
+    if (l:md ==? "i" || l:md ==# "R") && (a:isActiveWindow)
         " Consult Taglist about nearby tag
         let l:funcProto = Tlist_Get_Tag_Prototype_By_Line()
 
@@ -325,7 +325,7 @@ function s:GitInit(buf)
         return
     endif
 
-    " Restart Cache after update
+    " Renew Cache after update
     let s:GitStatus[a:buf]["CacheExpired"] = s:GitMaxCacheExp
 
     call s:GitUpdate(1, a:buf)
