@@ -43,6 +43,7 @@ let s:sepBSym       = "\ue0b8"
 let s:gitBranchSym  = "\ue0a0"
 let s:gitInsSym     = "\u2714"
 let s:gitDelSym     = "\u2718"
+let s:gitUnTckSym   = "??"
 let s:readonlySym   = "\ue0a2"
 
 " Global git status for all buffers
@@ -111,10 +112,13 @@ function s:BuildInfBar(buf, isActiveWindow)
 
         let l:infBar .= "%#" . l:infBHighlight . "Strick#" . 
                     \ s:sepASym . "  %#" . l:infBHighlight . "#"
-
-        let l:infBar .= s:gitInsSym . " " . s:GitStatus[a:buf]["InsertNum"] . " "
-        let l:infBar .= s:gitDelSym . " " . s:GitStatus[a:buf]["DeleteNum"]
-
+        
+        if s:GitStatus[a:buf]["IsTracked"]
+            let l:infBar .= s:gitInsSym . " " . s:GitStatus[a:buf]["InsertNum"] . " "
+            let l:infBar .= s:gitDelSym . " " . s:GitStatus[a:buf]["DeleteNum"]
+        else
+            let l:infBar .= s:gitUnTckSym
+        endif
         let l:infBar .= "%#" . l:infBHighlight . "Strick#" . 
                     \ s:sepASym . "  %#" . l:infBHighlight . "#"
 
@@ -235,18 +239,19 @@ function g:AsyncGitCallback(isFullUpdate, tmpfile, buf)
 
     if !has_key(s:GitStatus, a:buf)
         let s:GitStatus[a:buf] = {"LocalEnable" : 1 ,"IsGit": 0, "RootDir": "", "BranchName": "", 
-                                \ "Dirty": "", "InsertNum": 0, "DeleteNum": 0, "CacheExpired": 0}
+                                \ "Dirty": "", "IsTracked": 0, "InsertNum": 0, "DeleteNum": 0, "CacheExpired": 0}
     endif
 
     let l:lines = readfile(a:tmpfile)
-    let l:maxExpectedLines = 2
+    let l:maxExpectedLines = 3
 
     if a:isFullUpdate
         let s:GitStatus[a:buf]["RootDir"] = trim(fnamemodify(l:lines[0], ":h"))
         let s:GitStatus[a:buf]["BranchName"] = trim(fnamemodify(l:lines[1], ":t"))
-        let l:maxExpectedLines = 4
+        let l:maxExpectedLines = 5
     endif
 
+    let s:GitStatus[a:buf]["IsTracked"] = str2nr(l:lines[l:maxExpectedLines - 3])
     let s:GitStatus[a:buf]["InsertNum"] = 0
     let s:GitStatus[a:buf]["DeleteNum"] = 0
     let s:GitStatus[a:buf]["Dirty"] = ""
@@ -285,6 +290,8 @@ function s:GitUpdate(initOrWrite, ...)
         let l:cmd .= "git -C " . l:parentDir . " rev-parse --short HEAD) >> " . l:redir . "&& "
     endif
 
+    let l:cmd .= "([[ -n $(git -C " . l:parentDir . " ls-files " . l:flname . ") ]] && " . 
+                \ "echo '1'  || echo '0') >> " . l:redir . "&& "
     let l:cmd .= "([[ -z $(git -C " . l:parentDir . " status -s) ]] || echo '*') >> " . l:redir . "&& "
     let l:cmd .= "git -C " . l:parentDir . " diff --numstat -- " . l:flname . " >> " . l:redir
     
@@ -305,7 +312,7 @@ function s:GitInit(buf)
 
     if !has_key(s:GitStatus, a:buf)
         let s:GitStatus[a:buf] = {"LocalEnable" : 1 ,"IsGit": 0, "RootDir": "", "BranchName": "", 
-                                \ "Dirty": "", "InsertNum": 0, "DeleteNum": 0, "CacheExpired": 0}
+                                \ "Dirty": "", "IsTracked": 0, "InsertNum": 0, "DeleteNum": 0, "CacheExpired": 0}
     endif
 
     if !s:GitStatus["enabled"] || !s:GitStatus[a:buf]["LocalEnable"]
