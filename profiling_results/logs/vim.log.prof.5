@@ -1,0 +1,2300 @@
+FUNCTION  <SNR>6_OnFileTypeSet()
+    Defined: ~/.vim/bundle/YouCompleteMe/autoload/youcompleteme.vim:598
+Called 1 time
+Total time:   0.000238
+ Self time:   0.000062
+
+count  total (s)   self (s)
+                              " The contents of the command-line window are empty when the filetype is set
+                              " for the first time. Users should never change its filetype so we only rely
+                              " on the CmdwinEnter event for that window.
+    1              0.000015   if !empty( getcmdwintype() )
+                                return
+    1              0.000002   endif
+                            
+    1   0.000206   0.000030   if !s:AllowedToCompleteInCurrentBuffer()
+    1              0.000003     return
+                              endif
+                            
+                              call s:SetUpCompleteopt()
+                              call s:SetCompleteFunc()
+                              call s:StartMessagePoll()
+                              call s:EnableAutoHover()
+                            
+                              py3 ycm_state.OnFileTypeSet()
+                              call s:OnFileReadyToParse( 1 )
+
+FUNCTION  <SNR>3_find_root()
+    Defined: ~/.vim/bundle/asyncrun.vim/plugin/asyncrun.vim:1008
+Called 18 times
+Total time:   0.035936
+ Self time:   0.002658
+
+count  total (s)   self (s)
+   18              0.000214 	function! s:guess_root(filename, markers)
+                            		let fullname = asyncrun#fullname(a:filename)
+                            		if fullname =~ '^fugitive:/'
+                            			if exists('b:git_dir')
+                            				return fnamemodify(b:git_dir, ':h')
+                            			endif
+                            			return '' " skip any fugitive buffers early
+                            		endif
+                            		let pivot = fullname
+                            		if !isdirectory(pivot)
+                            			let pivot = fnamemodify(pivot, ':h')
+                            		endif
+                            		while 1
+                            			let prev = pivot
+                            			for marker in a:markers
+                            				let newname = s:path_join(pivot, marker)
+                            				if newname =~ '[\*\?\[\]]'
+                            					if glob(newname) != ''
+                            						return pivot
+                            					endif
+                            				elseif filereadable(newname)
+                            					return pivot
+                            				elseif isdirectory(newname)
+                            					return pivot
+                            				endif
+                            			endfor
+                            			let pivot = fnamemodify(pivot, ':h')
+                            			if pivot == prev
+                            				break
+                            			endif
+                            		endwhile
+                                    return ''
+                            	endfunc
+   18              0.000075 	if a:path == '%'
+   18              0.000133 		if exists('b:asyncrun_root') && b:asyncrun_root != ''
+                            			return b:asyncrun_root
+   18              0.000112 		elseif exists('t:asyncrun_root') && t:asyncrun_root != ''
+                            			return t:asyncrun_root
+   18              0.000089 		elseif exists('g:asyncrun_root') && g:asyncrun_root != ''
+                            			return g:asyncrun_root
+   18              0.000024 		endif
+   18              0.000025 	endif
+   18   0.031898   0.000386 	let root = s:guess_root(a:path, a:markers)
+   18              0.000053 	if root != ''
+   18   0.002056   0.000290 		return asyncrun#fullname(root)
+                            	elseif a:strict != 0
+                            		return ''
+                            	endif
+                            	" Not found: return parent directory of current file / file itself.
+                            	let fullname = asyncrun#fullname(a:path)
+                            	if isdirectory(fullname)
+                            		return fullname
+                            	endif
+                            	return asyncrun#fullname(fnamemodify(fullname, ':h'))
+
+FUNCTION  <SNR>5_GitInit()
+    Defined: ~/.vim/bundle/long-statusline/plugin/long-statusline.vim:315
+Called 561 times
+Total time:   0.241112
+ Self time:   0.077790
+
+count  total (s)   self (s)
+                            
+  561              0.005092     if !has_key(s:GitStatus, a:buf)
+    6              0.000087         let s:GitStatus[a:buf] = {"LocalEnable" : 1 ,"IsGit": 0, "RootDir": "", "BranchName": "",  "Dirty": "", "IsTracked": 0, "InsertNum": 0, "DeleteNum": 0, "CacheExpired": 0}
+  561              0.001064     endif
+                            
+  561              0.005112     if !s:GitStatus["enabled"] || !s:GitStatus[a:buf]["LocalEnable"]
+                                    return
+  561              0.000750     endif
+                            
+  561              0.027329     let l:flname = expand("#" . a:buf . ":p")
+                                " If we opened a dir or taglist, ignore.
+  561              0.011051     if !filereadable(l:flname)
+                                    let s:GitStatus[a:buf]["LocalEnable"] = 0
+                                    return
+  561              0.000899     endif 
+                            
+  561              0.003916     if s:GitStatus[a:buf]["CacheExpired"] > 0
+                                    " Dont update unless it has been a while
+  513              0.004305         let s:GitStatus[a:buf]["CacheExpired"] -= 1
+  513              0.001015         return
+   48              0.000064     endif
+                            
+                                " Renew Cache after update
+   48              0.000407     let s:GitStatus[a:buf]["CacheExpired"] = s:GitMaxCacheExp
+                            
+   48   0.164502   0.001180     call s:GitUpdate(1, a:buf)
+                            
+
+FUNCTION  <SNR>3_check_quickfix()
+    Defined: ~/.vim/bundle/asyncrun.vim/plugin/asyncrun.vim:2003
+Called 18 times
+Total time:   0.000568
+ Self time:   0.000568
+
+count  total (s)   self (s)
+   18              0.000186 		let height = get(g:, "asyncrun_open", 0)
+   18              0.000095 		if exists('s:asyncrun_open')
+                            			let height = s:asyncrun_open
+   18              0.000026 		endif
+                            		" echo 'height: '.height . ' ' .s:asyncrun_open
+   18              0.000042 		if height > 0
+                            			call asyncrun#quickfix_toggle(height, 1)
+   18              0.000022 		endif
+
+FUNCTION  <SNR>3_StringStrip()
+    Defined: ~/.vim/bundle/asyncrun.vim/plugin/asyncrun.vim:863
+Called 36 times
+Total time:   0.010690
+ Self time:   0.010690
+
+count  total (s)   self (s)
+   36              0.010646 	return substitute(a:text, '^\s*\(.\{-}\)\s*$', '\1', '')
+
+FUNCTION  SetStatusLine()
+    Defined: ~/.vim/bundle/long-statusline/plugin/long-statusline.vim:139
+Called 561 times
+Total time:   0.489414
+ Self time:   0.077346
+
+count  total (s)   self (s)
+  561              0.005784     let l:winnum = win_id2win(a:winid)
+  561              0.003329     let l:buf = winbufnr(l:winnum)
+  561              0.004002     let l:isActiveWindow = (l:winnum == winnr())
+                                
+                                " Initialize Git
+  561   0.252406   0.011294     call s:GitInit(l:buf)
+                            
+                                " Mode
+  561              0.007523     let l:sts = s:modeMap[l:isActiveWindow][a:nextToTaglist][mode()]
+                            
+                                " File or function name
+  561   0.117773   0.013492     let l:sts .= s:BuildFilenameLbl(l:buf, l:isActiveWindow)
+                             
+                                " Left align
+  561              0.002172     let l:sts .= "%="
+                                
+                            
+                                " Modified flag
+  561              0.008507     let l:sts .= s:modifiedFlag[getbufvar(l:buf, "&modified")][l:isActiveWindow]
+                              
+                                " Information bar
+  561   0.078584   0.011909     let l:sts .= s:BuildInfBar(l:buf, l:isActiveWindow)
+                            
+  561              0.001690     return l:sts
+
+FUNCTION  <SNR>6_VisitedBufferRequiresReparse()
+    Defined: ~/.vim/bundle/YouCompleteMe/autoload/youcompleteme.vim:470
+Called 26 times
+Total time:   0.003902
+ Self time:   0.001514
+
+count  total (s)   self (s)
+   26              0.000357   if bufnr( '%' ) ==# s:previous_allowed_buffer_number
+                                return 0
+   26              0.000061   endif
+                            
+   26   0.003200   0.000812   return s:AllowedToCompleteInCurrentBuffer()
+
+FUNCTION  <SNR>6_ReceiveMessages()
+    Defined: ~/.vim/bundle/YouCompleteMe/autoload/youcompleteme.vim:97
+Called 26 times
+Total time:   0.006181
+ Self time:   0.003087
+
+count  total (s)   self (s)
+   26              0.000733   let poll_again = v:false
+   26   0.004247   0.001153   if s:AllowedToCompleteInCurrentBuffer()
+                                let poll_again = py3eval( 'ycm_state.OnPeriodicTick()' )
+   26              0.000053   endif
+                            
+   26              0.000090   if poll_again
+                                let s:pollers.receive_messages.id = timer_start( s:pollers.receive_messages.wait_milliseconds, function( 's:ReceiveMessages' ) )
+   26              0.000055   else
+                                " Don't poll again until we open another buffer
+   26              0.000214     let s:pollers.receive_messages.id = -1
+   26              0.000047   endif
+
+FUNCTION  <SNR>6_SetUpKeyMappings()
+    Defined: ~/.vim/bundle/YouCompleteMe/autoload/youcompleteme.vim:265
+Called 1 time
+Total time:   0.000150
+ Self time:   0.000150
+
+count  total (s)   self (s)
+                              " The g:ycm_key_select_completion and g:ycm_key_previous_completion used to
+                              " exist and are now here purely for the sake of backwards compatibility; we
+                              " don't want to break users if we can avoid it.
+                            
+    1              0.000005   if exists('g:ycm_key_select_completion') && index(g:ycm_key_list_select_completion,       g:ycm_key_select_completion) == -1
+                                call add(g:ycm_key_list_select_completion, g:ycm_key_select_completion)
+    1              0.000001   endif
+                            
+    1              0.000003   if exists('g:ycm_key_previous_completion') && index(g:ycm_key_list_previous_completion,       g:ycm_key_previous_completion) == -1
+                                call add(g:ycm_key_list_previous_completion, g:ycm_key_previous_completion)
+    1              0.000000   endif
+                            
+    3              0.000007   for key in g:ycm_key_list_select_completion
+                                " With this command, when the completion window is visible, the tab key
+                                " (default) will select the next candidate in the window. In vim, this also
+                                " changes the typed-in text to that of the candidate completion.
+    2              0.000024     exe 'inoremap <expr>' . key .  ' pumvisible() ? "\<C-n>" : "\' . key .'"'
+    3              0.000003   endfor
+                            
+    3              0.000003   for key in g:ycm_key_list_previous_completion
+                                " This selects the previous candidate for shift-tab (default)
+    2              0.000016     exe 'inoremap <expr>' . key . ' pumvisible() ? "\<C-p>" : "\' . key .'"'
+    3              0.000003   endfor
+                            
+    2              0.000001   for key in g:ycm_key_list_stop_completion
+                                " When selecting a candidate and closing the completion menu with the <C-y>
+                                " key, the menu will automatically be reopened because of the TextChangedI
+                                " event. We define a command to prevent that.
+    1              0.000008     exe 'inoremap <expr>' . key . ' <SID>StopCompletion( "\' . key . '" )'
+    2              0.000000   endfor
+                            
+    1              0.000002   if !empty( g:ycm_key_invoke_completion )
+    1              0.000002     let invoke_key = g:ycm_key_invoke_completion
+                            
+                                " Inside the console, <C-Space> is passed as <Nul> to Vim
+    1              0.000002     if invoke_key ==# '<C-Space>'
+    1              0.000004       imap <Nul> <C-Space>
+    1              0.000001     endif
+                            
+    1              0.000009     silent! exe 'inoremap <unique> <silent> ' . invoke_key . ' <C-R>=<SID>RequestSemanticCompletion()<CR>'
+    1              0.000000   endif
+                            
+    1              0.000002   if !empty( g:ycm_key_detailed_diagnostics )
+    1              0.000013     silent! exe 'nnoremap <unique> ' . g:ycm_key_detailed_diagnostics . ' :YcmShowDetailedDiagnostic<CR>'
+    1              0.000000   endif
+                            
+    1              0.000001   if s:completion_api == s:COMPLETION_COMPLETEFUNC
+                                " The TextChangedI event is not triggered when deleting a character while
+                                " the completion menu is open. We handle this by closing the completion menu
+                                " on the keys that delete a character in insert mode.
+                                for key in [ "<BS>", "<C-h>" ]
+                                  silent! exe 'inoremap <unique> <expr> ' . key . ' <SID>OnDeleteChar( "\' . key . '" )'
+                                endfor
+    1              0.000001   endif
+
+FUNCTION  <SNR>6_SetUpSigns()
+    Defined: ~/.vim/bundle/YouCompleteMe/autoload/youcompleteme.vim:330
+Called 1 time
+Total time:   0.000052
+ Self time:   0.000052
+
+count  total (s)   self (s)
+                              " We try to ensure backwards compatibility with Syntastic if the user has
+                              " already defined styling for Syntastic highlight groups.
+                            
+    1              0.000006   if !hlexists( 'YcmErrorSign' )
+    1              0.000002     if hlexists( 'SyntasticErrorSign')
+                                  highlight link YcmErrorSign SyntasticErrorSign
+    1              0.000001     else
+    1              0.000004       highlight link YcmErrorSign error
+    1              0.000001     endif
+    1              0.000000   endif
+                            
+    1              0.000002   if !hlexists( 'YcmWarningSign' )
+    1              0.000002     if hlexists( 'SyntasticWarningSign')
+                                  highlight link YcmWarningSign SyntasticWarningSign
+    1              0.000001     else
+    1              0.000003       highlight link YcmWarningSign todo
+    1              0.000001     endif
+    1              0.000000   endif
+                            
+    1              0.000002   if !hlexists( 'YcmErrorLine' )
+    1              0.000002     highlight link YcmErrorLine SyntasticErrorLine
+    1              0.000000   endif
+                            
+    1              0.000002   if !hlexists( 'YcmWarningLine' )
+    1              0.000002     highlight link YcmWarningLine SyntasticWarningLine
+    1              0.000001   endif
+                            
+    1              0.000008   exe 'sign define YcmError text=' . g:ycm_error_symbol . ' texthl=YcmErrorSign linehl=YcmErrorLine'
+    1              0.000005   exe 'sign define YcmWarning text=' . g:ycm_warning_symbol . ' texthl=YcmWarningSign linehl=YcmWarningLine'
+                            
+
+FUNCTION  <SNR>6_OnTextChangedInsertMode()
+    Defined: ~/.vim/bundle/YouCompleteMe/autoload/youcompleteme.vim:806
+Called 1 time
+Total time:   0.000170
+ Self time:   0.000035
+
+count  total (s)   self (s)
+    1   0.000165   0.000030   if !s:AllowedToCompleteInCurrentBuffer()
+    1              0.000002     return
+                              endif
+                            
+                              if s:DEBUG
+                                call ch_log( 'ycm: s:OnTextChangedInsertMode( ' . a:popup_is_visible . ')' . ' - last_char_inserted_by_user=' . s:last_char_inserted_by_user )
+                              endif
+                            
+                              if a:popup_is_visible && !s:last_char_inserted_by_user
+                                " If the last "input" wasn't from a user typing (i.e. didn't come from
+                                " InsertCharPre, then ignore this change in the text. This prevents ctrl-n
+                                " or tab from causing us to re-filter the list based on the now-selected
+                                " item.
+                                return
+                              endif
+                            
+                              if s:completion_stopped
+                                let s:completion_stopped = 0
+                                let s:completion = s:default_completion
+                                return
+                              endif
+                            
+                              call s:IdentifierFinishedOperations()
+                            
+                              " We have to make sure we correctly leave semantic mode even when the user
+                              " inserts something like a "operator[]" candidate string which fails
+                              " CurrentIdentifierFinished check.
+                              if s:force_semantic && !py3eval( 'base.LastEnteredCharIsIdentifierChar()' )
+                                let s:force_semantic = 0
+                              endif
+                            
+                              if get( b:, 'ycm_completing' ) && ( g:ycm_auto_trigger || s:force_semantic ) && !s:InsideCommentOrStringAndShouldStop() && !s:OnBlankLine()
+                                " The call to s:Complete here is necessary, to minimize flicker when we
+                                " close the pum on every keypress. In that case, we try to quickly show it
+                                " again with whatver the latest completion result is. When using complete(),
+                                " we don't need to do this, as we only close the pum when there are no
+                                " completions. However, it's still useful as we don't want Vim's filtering
+                                " to _ever_ apply. Examples of when this is problematic is when typing some
+                                " keys to filter (that are not a prefix of the completion), then deleting a
+                                " character. Normally Vim would re-filter based on the new "query", but we
+                                " don't want that.
+                                call s:Complete()
+                                call s:RequestCompletion()
+                            
+                                call s:UpdateSignatureHelp()
+                                call s:RequestSignatureHelp()
+                              endif
+                            
+                              py3 ycm_state.OnCursorMoved()
+                            
+                              if g:ycm_autoclose_preview_window_after_completion
+                                call s:ClosePreviewWindowIfNeeded()
+                              endif
+
+FUNCTION  <SNR>6_OnCursorMovedNormalMode()
+    Defined: ~/.vim/bundle/YouCompleteMe/autoload/youcompleteme.vim:788
+Called 85 times
+Total time:   0.013901
+ Self time:   0.003565
+
+count  total (s)   self (s)
+   85   0.013358   0.003022   if !s:AllowedToCompleteInCurrentBuffer()
+   85              0.000236     return
+                              endif
+                            
+                              py3 ycm_state.OnCursorMoved()
+
+FUNCTION  <SNR>4_restore_cpo()
+    Defined: ~/.vim/bundle/YouCompleteMe/plugin/youcompleteme.vim:22
+Called 1 time
+Total time:   0.000010
+ Self time:   0.000010
+
+count  total (s)   self (s)
+    1              0.000007   let &cpo = s:save_cpo
+    1              0.000002   unlet s:save_cpo
+
+FUNCTION  <SNR>6_SetUpSyntaxHighlighting()
+    Defined: ~/.vim/bundle/YouCompleteMe/autoload/youcompleteme.vim:366
+Called 1 time
+Total time:   0.000011
+ Self time:   0.000011
+
+count  total (s)   self (s)
+                              " We try to ensure backwards compatibility with Syntastic if the user has
+                              " already defined styling for Syntastic highlight groups.
+                            
+    1              0.000002   if !hlexists( 'YcmErrorSection' )
+                                if hlexists( 'SyntasticError' )
+                                  highlight link YcmErrorSection SyntasticError
+                                else
+                                  highlight link YcmErrorSection SpellBad
+                                endif
+    1              0.000000   endif
+                            
+    1              0.000002   if !hlexists( 'YcmWarningSection' )
+                                if hlexists( 'SyntasticWarning' )
+                                  highlight link YcmWarningSection SyntasticWarning
+                                else
+                                  highlight link YcmWarningSection SpellCap
+                                endif
+    1              0.000000   endif
+
+FUNCTION  <SNR>3_AsyncRun_Job_Update()
+    Defined: ~/.vim/bundle/asyncrun.vim/plugin/asyncrun.vim:386
+Called 52 times
+Total time:   0.018797
+ Self time:   0.017436
+
+count  total (s)   self (s)
+   52              0.000502 	let l:iconv = (g:asyncrun_encs != "")? 1 : 0
+   52              0.000201 	let l:count = 0
+   52              0.000142 	let l:total = 0
+   52              0.000413 	let l:empty = [{'text':''}]
+   52   0.002731   0.001370 	let l:check = s:AsyncRun_Job_CheckScroll()
+   52              0.000656 	let l:efm1 = &g:efm
+   52              0.000487 	let l:efm2 = &l:efm
+   52              0.000242 	if g:asyncrun_encs == &encoding
+                            		let l:iconv = 0
+   52              0.000087 	endif
+   52              0.000167 	if g:asyncrun_local != 0
+   52              0.001225 		let &l:efm = s:async_info.errorformat
+   52              0.000783 		let &g:efm = s:async_info.errorformat
+   52              0.000092 	endif
+   52              0.000600 	let l:raw = (&efm == '')? 1 : 0
+   52              0.000221 	if s:async_info.raw == 1
+                            		let l:raw = 1
+   52              0.000084 	endif
+   52              0.000316 	while s:async_tail < s:async_head
+                            		let l:text = s:async_output[s:async_tail]
+                            		if l:iconv != 0
+                            			try
+                            				let l:text = iconv(l:text, g:asyncrun_encs, &encoding)
+                            			catch /.*/
+                            			endtry
+                            		endif
+                            		let l:text = substitute(l:text, '\r$', '', 'g')
+                            		if l:text != ''
+                            			if l:raw == 0
+                            				if and(g:asyncrun_skip, 1) == 0
+                            					caddexpr l:text
+                            				else
+                            					noautocmd caddexpr l:text
+                            				endif
+                            			else
+                            				call setqflist([{'text':l:text}], 'a')
+                            			endif
+                            		elseif g:asyncrun_trim == 0
+                            			call setqflist(l:empty, 'a')
+                            		endif
+                            		let l:total += 1
+                            		unlet s:async_output[s:async_tail]
+                            		let s:async_tail += 1
+                            		let l:count += 1
+                            		if a:count > 0 && l:count >= a:count
+                            			break
+                            		endif
+   52              0.000245 	endwhile
+   52              0.000194 	if g:asyncrun_local != 0
+   52              0.000851 		if l:efm1 != &g:efm | let &g:efm = l:efm1 | endif
+   52              0.001130 		if l:efm2 != &l:efm | let &l:efm = l:efm2 | endif
+   52              0.000079 	endif
+   52              0.000332 	if s:async_scroll != 0 && l:total > 0 && l:check != 0
+                            		call s:AsyncRun_Job_AutoScroll()
+   52              0.000075 	endif
+   52              0.000197 	return l:count
+
+FUNCTION  youcompleteme#EnableCursorMovedAutocommands()
+    Defined: ~/.vim/bundle/YouCompleteMe/autoload/youcompleteme.vim:183
+Called 1 time
+Total time:   0.000042
+ Self time:   0.000042
+
+count  total (s)   self (s)
+    1              0.000003   augroup ycmcompletemecursormove
+    1              0.000002     autocmd!
+    1              0.000010     autocmd CursorMoved * call s:OnCursorMovedNormalMode()
+    1              0.000006     autocmd TextChanged * call s:OnTextChangedNormalMode()
+    1              0.000005     autocmd TextChangedI * call s:OnTextChangedInsertMode( v:false )
+    1              0.000002     if s:completion_api == s:COMPLETION_TEXTCHANGEDP
+    1              0.000006       autocmd TextChangedP * call s:OnTextChangedInsertMode( v:true )
+    1              0.000001     endif
+    1              0.000004     autocmd InsertCharPre * call s:OnInsertChar()
+    1              0.000001   augroup END
+
+FUNCTION  <SNR>3_AsyncRun_Job_OnFinish()
+    Defined: ~/.vim/bundle/asyncrun.vim/plugin/asyncrun.vim:507
+Called 18 times
+Total time:   0.249161
+ Self time:   0.234030
+
+count  total (s)   self (s)
+                            	" caddexpr '(OnFinish): '.a:what.' '.s:async_state
+   18              0.000119 	if s:async_state == 0
+                            		return -1
+   18              0.000029 	endif
+   18              0.000123 	if exists('s:async_job')
+   18              0.000268 		unlet s:async_job
+   18              0.000034 	endif
+   18              0.000101 	if exists('s:async_timer')
+   18              0.000141 		call timer_stop(s:async_timer)
+   18              0.000063 		unlet s:async_timer
+   18              0.000027 	endif
+   18   0.006456   0.000436 	call s:AsyncRun_Job_Update(-1)
+   18              0.000142 	let l:current = localtime()
+   18              0.000191 	let l:last = l:current - s:async_start
+   18   0.000800   0.000442 	let l:check = s:AsyncRun_Job_CheckScroll()
+   18              0.000090 	if s:async_code == 0
+   18              0.000218 		let l:text = "[Finished in ".l:last." seconds]"
+   18              0.000086 		if !s:async_info.strip
+   18              0.000326 			call setqflist([{'text':l:text}], 'a')
+   18              0.000034 		endif
+   18              0.000083 		let g:asyncrun_status = "success"
+                            	else
+                            		let l:text = 'with code '.s:async_code
+                            		let l:text = "[Finished in ".l:last." seconds ".l:text."]"
+                            		call setqflist([{'text':l:text}], 'a')
+                            		let g:asyncrun_status = "failure"
+   18              0.000030 	endif
+   18              0.000078 	let s:async_state = 0
+   18              0.000086 	if s:async_scroll != 0 && l:check != 0
+   18   0.000940   0.000444 		call s:AsyncRun_Job_AutoScroll()
+   18              0.000027 	endif
+   18              0.000086 	let g:asyncrun_code = s:async_code
+   18              0.000078 	let g:asyncrun_name = ''
+   18              0.000060 	if g:asyncrun_bell != 0
+                            		exec "norm! \<esc>"
+   18              0.000027 	endif
+   18              0.000077 	if s:async_info.post != ''
+   18   0.006443   0.000542 		exec s:async_info.post
+   18              0.000096 		let s:async_info.post = ''
+   18              0.000033 	endif
+   18              0.000071 	if g:asyncrun_exit != ""
+                            		exec g:asyncrun_exit
+   18              0.000030 	endif
+   18   0.001249   0.000458 	call s:AsyncRun_Job_AutoCmd(1, s:async_info.auto)
+   18   0.001897   0.000332 	call s:AutoCmd('Stop')
+   18              0.207411 	redrawstatus!
+   18              0.020325 	redraw
+
+FUNCTION  <SNR>3_AutoCmd()
+    Defined: ~/.vim/bundle/asyncrun.vim/plugin/asyncrun.vim:221
+Called 54 times
+Total time:   0.006107
+ Self time:   0.004124
+
+count  total (s)   self (s)
+   54              0.000492 	if has('autocmd') && ((g:asyncrun_skip / 2) % 2) == 0
+   54              0.000147 		if g:asyncrun_silent
+   54   0.004788   0.002805 			exec 'silent doautocmd User AsyncRun'.a:name
+                            		else
+                            			exec 'doautocmd User AsyncRun'.a:name
+   54              0.000072 		endif
+   54              0.000073 	endif
+
+FUNCTION  <SNR>6_StartMessagePoll()
+    Defined: ~/.vim/bundle/YouCompleteMe/autoload/youcompleteme.vim:88
+Called 26 times
+Total time:   0.001348
+ Self time:   0.001348
+
+count  total (s)   self (s)
+   26              0.000318   if s:pollers.receive_messages.id < 0
+   26              0.000848     let s:pollers.receive_messages.id = timer_start( s:pollers.receive_messages.wait_milliseconds, function( 's:ReceiveMessages' ) )
+   26              0.000079   endif
+
+FUNCTION  <SNR>6_UpdateMatches()
+    Defined: ~/.vim/bundle/YouCompleteMe/autoload/youcompleteme.vim:657
+Called 59 times
+Total time:   0.016596
+ Self time:   0.016596
+
+count  total (s)   self (s)
+   59              0.016453   py3 ycm_state.UpdateMatches()
+
+FUNCTION  <SNR>3_StringReplace()
+    Defined: ~/.vim/bundle/asyncrun.vim/plugin/asyncrun.vim:857
+Called 972 times
+Total time:   0.015554
+ Self time:   0.015554
+
+count  total (s)   self (s)
+  972              0.010899 	let l:data = split(a:text, a:old, 1)
+  972              0.004070 	return join(l:data, a:new)
+
+FUNCTION  <SNR>3_AsyncRun_Job_AutoCmd()
+    Defined: ~/.vim/bundle/asyncrun.vim/plugin/asyncrun.vim:446
+Called 36 times
+Total time:   0.002114
+ Self time:   0.002114
+
+count  total (s)   self (s)
+   36              0.000493 	if !has('autocmd') | return | endif
+   36              0.000259 	let name = (a:auto == '')? g:asyncrun_auto : a:auto
+   36              0.000974 	if name !~ '^\w\+$' || name == 'NONE' || name == '<NONE>'
+   36              0.000096 		return
+                            	endif
+                            	if ((g:asyncrun_skip / 4) % 2) != 0
+                            		return 0
+                            	endif
+                            	if a:mode == 0
+                            		if g:asyncrun_silent
+                            			silent exec 'doautocmd QuickFixCmdPre '. name
+                            		else
+                            			exec 'doautocmd QuickFixCmdPre '. name
+                            		endif
+                            	else
+                            		if g:asyncrun_silent
+                            			silent exec 'doautocmd QuickFixCmdPost '. name
+                            		else
+                            			exec 'doautocmd QuickFixCmdPost '. name
+                            		endif
+                            	endif
+
+FUNCTION  <SNR>3_guess_root()
+    Defined: ~/.vim/bundle/asyncrun.vim/plugin/asyncrun.vim:1009
+Called 1 time
+Total time:   0.001987
+ Self time:   0.000828
+
+count  total (s)   self (s)
+    1   0.000234   0.000024 		let fullname = asyncrun#fullname(a:filename)
+    1              0.000019 		if fullname =~ '^fugitive:/'
+                            			if exists('b:git_dir')
+                            				return fnamemodify(b:git_dir, ':h')
+                            			endif
+                            			return '' " skip any fugitive buffers early
+    1              0.000002 		endif
+    1              0.000004 		let pivot = fullname
+    1              0.000013 		if !isdirectory(pivot)
+    1              0.000009 			let pivot = fnamemodify(pivot, ':h')
+    1              0.000002 		endif
+    2              0.000007 		while 1
+    2              0.000007 			let prev = pivot
+    8              0.000029 			for marker in a:markers
+    7   0.001082   0.000133 				let newname = s:path_join(pivot, marker)
+    7              0.000179 				if newname =~ '[\*\?\[\]]'
+                            					if glob(newname) != ''
+                            						return pivot
+                            					endif
+    7              0.000121 				elseif filereadable(newname)
+                            					return pivot
+    7              0.000063 				elseif isdirectory(newname)
+    1              0.000003 					return pivot
+    6              0.000010 				endif
+    7              0.000018 			endfor
+    1              0.000009 			let pivot = fnamemodify(pivot, ':h')
+    1              0.000005 			if pivot == prev
+                            				break
+    1              0.000002 			endif
+    1              0.000003 		endwhile
+                                    return ''
+
+FUNCTION  <SNR>6_SetUpPython()
+    Defined: ~/.vim/bundle/YouCompleteMe/autoload/youcompleteme.vim:212
+Called 1 time
+Total time:   0.087169
+ Self time:   0.087169
+
+count  total (s)   self (s)
+    1              0.000001   py3 << EOF
+                            import os.path as p
+                            import sys
+                            import traceback
+                            import vim
+                            
+                            root_folder = p.normpath( p.join( vim.eval( 's:script_folder_path' ), '..' ) )
+                            third_party_folder = p.join( root_folder, 'third_party' )
+                            
+                            # Add dependencies to Python path.
+                            dependencies = [ p.join( root_folder, 'python' ),
+                                             p.join( third_party_folder, 'requests-futures' ),
+                                             p.join( third_party_folder, 'ycmd' ),
+                                             p.join( third_party_folder, 'requests_deps', 'idna' ),
+                                             p.join( third_party_folder, 'requests_deps', 'chardet' ),
+                                             p.join( third_party_folder,
+                                                     'requests_deps',
+                                                     'urllib3',
+                                                     'src' ),
+                                             p.join( third_party_folder, 'requests_deps', 'certifi' ),
+                                             p.join( third_party_folder, 'requests_deps', 'requests' ) ]
+                            
+                            sys.path[ 0:0 ] = dependencies
+                            
+                            # We enclose this code in a try/except block to avoid backtraces in Vim.
+                            try:
+                              # Import the modules used in this file.
+                              from ycm import base, vimsupport, youcompleteme
+                            
+                              if 'ycm_state' in globals():
+                                # If re-initializing, pretend that we shut down
+                                ycm_state.OnVimLeave()
+                                del ycm_state
+                            
+                              ycm_state = youcompleteme.YouCompleteMe()
+                            except Exception as error:
+                              # We don't use PostVimMessage or EchoText from the vimsupport module because
+                              # importing this module may fail.
+                              vim.command( 'redraw | echohl WarningMsg' )
+                              for line in traceback.format_exc().splitlines():
+                                vim.command( "echom '{0}'".format( line.replace( "'", "''" ) ) )
+                            
+                              vim.command( "echo 'YouCompleteMe unavailable: {0}'"
+                                           .format( str( error ).replace( "'", "''" ) ) )
+                              vim.command( 'echohl None' )
+                              vim.command( 'return 0' )
+                            else:
+                              vim.command( 'return 1' )
+                            EOF
+
+FUNCTION  <SNR>3_path_join()
+    Defined: ~/.vim/bundle/asyncrun.vim/plugin/asyncrun.vim:975
+Called 156 times
+Total time:   0.015400
+ Self time:   0.015400
+
+count  total (s)   self (s)
+  156              0.000898     let l:size = strlen(a:home)
+  156              0.000995     if l:size == 0 | return a:name | endif
+  156              0.001057     let l:last = strpart(a:home, l:size - 1, 1)
+  156              0.002715     if has("win32") || has("win64") || has("win16") || has('win95')
+                            		let l:first = strpart(a:name, 0, 1)
+                            		if l:first == "/" || l:first == "\\"
+                            			let head = strpart(a:home, 1, 2)
+                            			if index([":\\", ":/"], head) >= 0
+                            				return strpart(a:home, 0, 2) . a:name
+                            			endif
+                            			return a:name
+                            		elseif index([":\\", ":/"], strpart(a:name, 1, 2)) >= 0
+                            			return a:name
+                            		endif
+                                    if l:last == "/" || l:last == "\\"
+                                        return a:home . a:name
+                                    else
+                                        return a:home . '/' . a:name
+                                    endif
+  156              0.000207     else
+  156              0.000723 		if strpart(a:name, 0, 1) == "/"
+                            			return a:name
+  156              0.000196 		endif
+  156              0.000378         if l:last == "/"
+                                        return a:home . a:name
+  156              0.000208         else
+  156              0.000672             return a:home . '/' . a:name
+                                    endif
+                                endif
+
+FUNCTION  <SNR>5_GitUpdate()
+    Defined: ~/.vim/bundle/long-statusline/plugin/long-statusline.vim:275
+Called 60 times
+Total time:   0.183612
+ Self time:   0.012382
+
+count  total (s)   self (s)
+   60              0.000707     let l:buf = get(a:, 1, bufnr())
+                            
+   60              0.000476     if !s:GitStatus["enabled"] || !s:GitStatus[l:buf]["LocalEnable"]
+                                    return
+   60              0.000095     endif
+                                
+   60              0.001745     let l:flname = expand("#" . l:buf . ":p")
+   60              0.000529     let l:parentDir = fnamemodify(l:flname, ":h")
+   60              0.000533     let l:tmpfile = tempname()
+   60              0.000303     let l:redir = l:tmpfile ." 2> /dev/null "
+   60              0.000421     let l:isFullUpdate = a:initOrWrite || !s:GitStatus[l:buf]["IsGit"]
+   60              0.000155     let l:cmd = ""
+                            
+   60              0.000175     if l:isFullUpdate
+   48              0.000447         let l:cmd  = "git -C " . l:parentDir . " rev-parse --absolute-git-dir > " . l:redir . "&& "
+   48              0.000391         let l:cmd .= "(git -C " . l:parentDir . " symbolic-ref HEAD || " 
+   48              0.000524         let l:cmd .= "git -C " . l:parentDir . " rev-parse --short HEAD) >> " . l:redir . "&& "
+   60              0.000092     endif
+                            
+   60              0.000949     let l:cmd .= "([[ -n $(git -C " . l:parentDir . " ls-files " . l:flname . ") ]] && " .  "echo '1'  || echo '0') >> " . l:redir . "&& "
+   60              0.000609     let l:cmd .= "([[ -z $(git -C " . l:parentDir . " status -s) ]] || echo '*') >> " . l:redir . "&& "
+   60              0.000671     let l:cmd .= "git -C " . l:parentDir . " diff --numstat -- " . l:flname . " >> " . l:redir
+                                
+   60              0.000230     if g:asyncrun_status != "running"
+                                    " Async call to g:AsyncGitCallback()
+   18   0.172480   0.001250         call asyncrun#run("",  {"post": "call g:AsyncGitCallback(" . l:isFullUpdate . ", '" . l:tmpfile . "', " .  l:buf . ")"}, l:cmd)
+   42              0.000074     else
+                                    " If we could not execute it now, void the cache so that it is executed
+                                    " the next time 
+   42              0.000306         let s:GitStatus[l:buf]["CacheExpired"] = 0
+   60              0.000095     endif
+
+FUNCTION  <SNR>2_Tlist_Get_File_Index()
+    Defined: ~/.vim/bundle/taglist/plugin/taglist.vim:776
+Called 4 times
+Total time:   0.000042
+ Self time:   0.000042
+
+count  total (s)   self (s)
+    4              0.000019     if s:tlist_file_count == 0 || a:fname == ''
+    4              0.000008         return -1
+                                endif
+                            
+                                " If the new filename is same as the last accessed filename, then
+                                " return that index
+                                if s:tlist_file_name_idx_cache != -1 && s:tlist_file_name_idx_cache < s:tlist_file_count
+                                    if s:tlist_{s:tlist_file_name_idx_cache}_filename == a:fname
+                                        " Same as the last accessed file
+                                        return s:tlist_file_name_idx_cache
+                                    endif
+                                endif
+                            
+                                " First, check whether the filename is present
+                                let s_fname = a:fname . "\n"
+                                let i = stridx(s:tlist_file_names, s_fname)
+                                if i == -1
+                                    let s:tlist_file_name_idx_cache = -1
+                                    return -1
+                                endif
+                            
+                                " Second, compute the file name index
+                                let nl_txt = substitute(strpart(s:tlist_file_names, 0, i), "[^\n]", '', 'g')
+                                let s:tlist_file_name_idx_cache = strlen(nl_txt)
+                                return s:tlist_file_name_idx_cache
+
+FUNCTION  <SNR>6_OnBufferUnload()
+    Defined: ~/.vim/bundle/YouCompleteMe/autoload/youcompleteme.vim:645
+Called 6 times
+Total time:   0.000599
+ Self time:   0.000302
+
+count  total (s)   self (s)
+                              " Expanding <abuf> returns the unloaded buffer number as a string but we want
+                              " it as a true number for the getbufvar function.
+    6              0.000093   let buffer_number = str2nr( expand( '<abuf>' ) )
+    6   0.000466   0.000169   if !s:AllowedToCompleteInBuffer( buffer_number )
+    6              0.000011     return
+                              endif
+                            
+                              py3 ycm_state.OnBufferUnload( vimsupport.GetIntValue( 'buffer_number' ) )
+
+FUNCTION  <SNR>6_AllowedToCompleteInBuffer()
+    Defined: ~/.vim/bundle/YouCompleteMe/autoload/youcompleteme.vim:438
+Called 170 times
+Total time:   0.012690
+ Self time:   0.012690
+
+count  total (s)   self (s)
+  170              0.003890   let buftype = getbufvar( a:buffer, '&buftype' )
+                            
+  170              0.001778   if has_key( s:buftype_blacklist, buftype )
+                                return 0
+  170              0.000512   endif
+                            
+  170              0.001820   let filetype = getbufvar( a:buffer, '&filetype' )
+                            
+  170              0.001998   if empty( filetype ) || s:DisableOnLargeFile( a:buffer )
+  170              0.000554     return 0
+                              endif
+                            
+                              let whitelist_allows = type( g:ycm_filetype_whitelist ) != type( {} ) || has_key( g:ycm_filetype_whitelist, '*' ) || s:HasAnyKey( g:ycm_filetype_whitelist, split( filetype, '\.' ) )
+                              let blacklist_allows = type( g:ycm_filetype_blacklist ) != type( {} ) || !s:HasAnyKey( g:ycm_filetype_blacklist, split( filetype, '\.' ) )
+                            
+                              let allowed = whitelist_allows && blacklist_allows
+                              if allowed
+                                let s:previous_allowed_buffer_number = bufnr( a:buffer )
+                              endif
+                              return allowed
+
+FUNCTION  <SNR>3_AsyncRun_Job_OnExit()
+    Defined: ~/.vim/bundle/asyncrun.vim/plugin/asyncrun.vim:580
+Called 18 times
+Total time:   0.000730
+ Self time:   0.000730
+
+count  total (s)   self (s)
+                            	" caddexpr "[exit]: ".a:message." ".type(a:message)
+   18              0.000402 	let s:async_code = a:message
+   18              0.000203 	let s:async_state = or(s:async_state, 2)
+
+FUNCTION  <SNR>5_GetFilename()
+    Defined: ~/.vim/bundle/long-statusline/plugin/long-statusline.vim:66
+Called 561 times
+Total time:   0.047921
+ Self time:   0.047921
+
+count  total (s)   self (s)
+  561              0.018887     let l:flname = expand("#" . a:buf . ":p")
+                                
+  561              0.003462     if s:GitStatus[a:buf]["IsGit"]
+  539              0.023815         return fnamemodify(s:GitStatus[a:buf]["RootDir"], ":t") .  substitute(l:flname, s:GitStatus[a:buf]["RootDir"], "", "")
+   22              0.000015     endif
+                            
+   22              0.000032     return l:flname
+
+FUNCTION  <SNR>6_OnInsertLeave()
+    Defined: ~/.vim/bundle/YouCompleteMe/autoload/youcompleteme.vim:868
+Called 2 times
+Total time:   0.000300
+ Self time:   0.000072
+
+count  total (s)   self (s)
+    2   0.000289   0.000061   if !s:AllowedToCompleteInCurrentBuffer()
+    2              0.000005     return
+                              endif
+                            
+                              let s:last_char_inserted_by_user = v:false
+                            
+                              call s:StopPoller( s:pollers.completion )
+                              let s:force_semantic = 0
+                              let s:completion = s:default_completion
+                            
+                              call s:OnFileReadyToParse()
+                              py3 ycm_state.OnInsertLeave()
+                              if g:ycm_autoclose_preview_window_after_completion || g:ycm_autoclose_preview_window_after_insertion
+                                call s:ClosePreviewWindowIfNeeded()
+                              endif
+                            
+                              call s:ClearSignatureHelp()
+
+FUNCTION  youcompleteme#Enable()
+    Defined: ~/.vim/bundle/YouCompleteMe/autoload/youcompleteme.vim:129
+Called 1 time
+Total time:   0.087995
+ Self time:   0.000241
+
+count  total (s)   self (s)
+    1   0.000021   0.000007   call s:SetUpBackwardsCompatibility()
+                            
+    1   0.087181   0.000012   if !s:SetUpPython()
+                                return
+    1              0.000002   endif
+                            
+    1   0.000558   0.000029   call s:SetUpOptions()
+                            
+    1   0.000077   0.000035   call youcompleteme#EnableCursorMovedAutocommands()
+    1              0.000001   augroup youcompleteme
+    1              0.000002     autocmd!
+                                " Note that these events will NOT trigger for the file vim is started with;
+                                " so if you do "vim foo.cc", these events will not trigger when that buffer
+                                " is read. This is because youcompleteme#Enable() is called on VimEnter and
+                                " that happens *after* FileType has already triggered for the initial file.
+                                " We don't parse the buffer on the BufRead event since it would only be
+                                " useful if the buffer filetype is set (we ignore the buffer if there is no
+                                " filetype) and if so, the FileType event has triggered before and thus the
+                                " buffer is already parsed.
+    1              0.000007     autocmd BufWritePost,FileWritePost * call s:OnFileSave()
+    1              0.000006     autocmd FileType * call s:OnFileTypeSet()
+    1              0.000012     autocmd BufEnter,CmdwinEnter * call s:OnBufferEnter()
+    1              0.000003     autocmd BufUnload * call s:OnBufferUnload()
+    1              0.000005     autocmd InsertLeave * call s:OnInsertLeave()
+    1              0.000004     autocmd VimLeave * call s:OnVimLeave()
+    1              0.000002     autocmd CompleteDone * call s:OnCompleteDone()
+    1              0.000002     if exists( '##CompleteChanged' )
+    1              0.000006       autocmd CompleteChanged * call s:OnCompleteChanged()
+    1              0.000000     endif
+    1              0.000006     autocmd BufEnter,WinEnter * call s:UpdateMatches()
+    1              0.000001   augroup END
+                            
+                              " The FileType event is not triggered for the first loaded file. We wait until
+                              " the server is ready to manually run the s:OnFileTypeSet function.
+    1              0.000010   let s:pollers.server_ready.id = timer_start( s:pollers.server_ready.wait_milliseconds, function( 's:PollServerReady' ) )
+                            
+    1              0.000040   let s:default_completion = py3eval( 'vimsupport.NO_COMPLETIONS' )
+    1              0.000002   let s:completion = s:default_completion
+                            
+    1              0.000023   if exists( '*prop_type_add' ) && exists( '*prop_type_delete' )
+    1              0.000005     hi default YCMInverse term=reverse cterm=reverse gui=reverse
+    1              0.000002     call prop_type_delete( 'YCM-signature-help-current-argument' )
+    1              0.000006     call prop_type_add( 'YCM-signature-help-current-argument', {   'highlight': 'YCMInverse',   'combine':   1,   'priority':  50, } )
+    1              0.000001   endif
+
+FUNCTION  <SNR>3_ExtractOpt()
+    Defined: ~/.vim/bundle/asyncrun.vim/plugin/asyncrun.vim:868
+Called 18 times
+Total time:   0.007906
+ Self time:   0.007906
+
+count  total (s)   self (s)
+   18              0.000155 	let cmd = a:command
+   18              0.000060 	let opts = {}
+   18              0.000277 	while cmd =~# '^-\%(\w\+\)\%([= ]\|$\)'
+                            		let opt = matchstr(cmd, '^-\zs\w\+')
+                            		if cmd =~ '^-\w\+='
+                            			let val = matchstr(cmd, '^-\w\+=\zs\%(\\.\|\S\)*')
+                            		else
+                            			let val = (opt == 'cwd')? '' : 1
+                            		endif
+                            		let opts[opt] = substitute(val, '\\\(\s\)', '\1', 'g')
+                            		let cmd = substitute(cmd, '^-\w\+\%(=\%(\\.\|\S\)*\)\=\s*', '', '')
+   18              0.000054 	endwhile
+   18              0.005257 	let cmd = substitute(cmd, '^\s*\(.\{-}\)\s*$', '\1', '')
+   18              0.000299 	let cmd = substitute(cmd, '^@\s*', '', '')
+   18              0.000130 	let opts.cwd = get(opts, 'cwd', '')
+   18              0.000097 	let opts.mode = get(opts, 'mode', '')
+   18              0.000077 	let opts.save = get(opts, 'save', '')
+   18              0.000089 	let opts.program = get(opts, 'program', '')
+   18              0.000084 	let opts.post = get(opts, 'post', '')
+   18              0.000076 	let opts.text = get(opts, 'text', '')
+   18              0.000079 	let opts.auto = get(opts, 'auto', '')
+   18              0.000078 	let opts.raw = get(opts, 'raw', '')
+   18              0.000082 	let opts.strip = get(opts, 'strip', '')
+   18              0.000087 	let opts.append = get(opts, 'append', '')
+   18              0.000039 	if 0
+                            		echom 'cwd:'. opts.cwd
+                            		echom 'mode:'. opts.mode
+                            		echom 'save:'. opts.save
+                            		echom 'program:'. opts.program
+                            		echom 'command:'. cmd
+   18              0.000026 	endif
+   18              0.000083 	return [cmd, opts]
+
+FUNCTION  <SNR>6_OnTextChangedNormalMode()
+    Defined: ~/.vim/bundle/YouCompleteMe/autoload/youcompleteme.vim:797
+Called 11 times
+Total time:   0.001331
+ Self time:   0.000373
+
+count  total (s)   self (s)
+   11   0.001288   0.000330   if !s:AllowedToCompleteInCurrentBuffer()
+   11              0.000027     return
+                              endif
+                            
+                              call s:OnFileReadyToParse()
+
+FUNCTION  asyncrun#fullname()
+    Defined: ~/.vim/bundle/asyncrun.vim/plugin/asyncrun.vim:942
+Called 36 times
+Total time:   0.004402
+ Self time:   0.004402
+
+count  total (s)   self (s)
+   36              0.000179 	let f = a:f
+   36              0.000268 	if f =~ "'."
+                            		try
+                            			redir => m
+                            			silent exe ':marks' f[1]
+                            			redir END
+                            			let f = split(split(m, '\n')[-1])[-1]
+                            			let f = filereadable(f)? f : ''
+                            		catch
+                            			let f = '%'
+                            		endtry
+   36              0.000047 	endif
+   36              0.000080 	if f == '%'
+   18              0.000103 		let f = expand('%')
+   18              0.000225 		if &bt == 'terminal'
+                            			let f = ''
+   18              0.000026 		endif
+   36              0.000044 	endif
+   36              0.000805 	let f = fnamemodify(f, ':p')
+   36              0.000124 	if s:asyncrun_windows
+                            		let f = substitute(f, "\\", '/', 'g')
+   36              0.000045 	endif
+   36              0.000153 	if len(f) > 1
+   36              0.000148 		let size = len(f)
+   36              0.000224 		if f[size - 1] == '/'
+   18              0.000108 			let f = strpart(f, 0, size - 1)
+   36              0.000044 		endif
+   36              0.000045 	endif
+   36              0.000101 	return f
+
+FUNCTION  <SNR>6_SetUpCpoptions()
+    Defined: ~/.vim/bundle/YouCompleteMe/autoload/youcompleteme.vim:479
+Called 1 time
+Total time:   0.000023
+ Self time:   0.000023
+
+count  total (s)   self (s)
+                              " Without this flag in cpoptions, critical YCM mappings do not work. There's
+                              " no way to not have this and have YCM working, so force the flag.
+    1              0.000013   set cpoptions+=B
+                            
+                              " This prevents the display of "Pattern not found" & similar messages during
+                              " completion.
+    1              0.000006   set shortmess+=c
+
+FUNCTION  <SNR>6_PollServerReady()
+    Defined: ~/.vim/bundle/YouCompleteMe/autoload/youcompleteme.vim:662
+Called 2 times
+Total time:   0.116221
+ Self time:   0.115983
+
+count  total (s)   self (s)
+    2              0.000394   if !py3eval( 'ycm_state.IsServerAlive()' )
+                                py3 ycm_state.NotifyUserIfServerCrashed()
+                                " Server crashed. Don't poll it again.
+                                return
+    2              0.000004   endif
+                            
+    2              0.115427   if !py3eval( 'ycm_state.CheckIfServerIsReady()' )
+    1              0.000021     let s:pollers.server_ready.id = timer_start( s:pollers.server_ready.wait_milliseconds, function( 's:PollServerReady' ) )
+    1              0.000015     return
+    1              0.000003   endif
+                            
+    1   0.000288   0.000050   call s:OnFileTypeSet()
+
+FUNCTION  AsyncRun_Job_OnTimer()
+    Defined: ~/.vim/bundle/asyncrun.vim/plugin/asyncrun.vim:471
+Called 34 times
+Total time:   0.267725
+ Self time:   0.005750
+
+count  total (s)   self (s)
+   34              0.000941 	let limit = (g:asyncrun_timer < 10)? 10 : g:asyncrun_timer
+                            	" check on command line window
+   34              0.000644 	if &ft == 'vim' && &buftype == 'nofile'
+                            		return
+   34              0.000084 	endif
+   34              0.000152 	if s:async_nvim == 0
+   34              0.000359 		if exists('s:async_job')
+   34   0.000606   0.000569 			call job_status(s:async_job)
+   34              0.000071 		endif
+   34              0.000054 	endif
+   34   0.014009   0.001232 	call s:AsyncRun_Job_Update(limit)
+   34              0.000255 	if and(s:async_state, 7) == 7
+   18              0.000078 		if s:async_head == s:async_tail
+   18   0.249713   0.000552 			call s:AsyncRun_Job_OnFinish()
+   18              0.000042 		endif
+   34              0.000048 	endif
+
+FUNCTION  <SNR>6_AllowedToCompleteInCurrentBuffer()
+    Defined: ~/.vim/bundle/YouCompleteMe/autoload/youcompleteme.vim:465
+Called 152 times
+Total time:   0.017315
+ Self time:   0.005269
+
+count  total (s)   self (s)
+  152   0.017113   0.005067   return s:AllowedToCompleteInBuffer( '%' )
+
+FUNCTION  asyncrun#run()
+    Defined: ~/.vim/bundle/asyncrun.vim/plugin/asyncrun.vim:1689
+Called 18 times
+Total time:   0.171230
+ Self time:   0.041640
+
+count  total (s)   self (s)
+   18              0.000075 	let l:macros = {}
+   18              0.000541 	let l:macros['VIM_FILEPATH'] = expand("%:p")
+   18              0.000141 	let l:macros['VIM_FILENAME'] = expand("%:t")
+   18              0.000389 	let l:macros['VIM_FILEDIR'] = expand("%:p:h")
+   18              0.000121 	let l:macros['VIM_FILENOEXT'] = expand("%:t:r")
+   18              0.000362 	let l:macros['VIM_PATHNOEXT'] = expand("%:p:r")
+   18              0.000138 	let l:macros['VIM_FILEEXT'] = "." . expand("%:e")
+   18              0.000093 	let l:macros['VIM_FILETYPE'] = (&filetype)
+   18              0.000155 	let l:macros['VIM_CWD'] = getcwd()
+   18              0.000122 	let l:macros['VIM_RELDIR'] = expand("%:h:.")
+   18              0.000436 	let l:macros['VIM_RELNAME'] = expand("%:p:.")
+   18              0.000167 	let l:macros['VIM_CWORD'] = expand("<cword>")
+   18              0.000168 	let l:macros['VIM_CFILE'] = expand("<cfile>")
+   18              0.000114 	let l:macros['VIM_CLINE'] = line('.')
+   18              0.000132 	let l:macros['VIM_VERSION'] = ''.v:version
+   18              0.000110 	let l:macros['VIM_SVRNAME'] = v:servername
+   18              0.000096 	let l:macros['VIM_COLUMNS'] = ''.&columns
+   18              0.000092 	let l:macros['VIM_LINES'] = ''.&lines
+   18              0.000271 	let l:macros['VIM_GUI'] = has('gui_running')? 1 : 0
+   18   0.037861   0.000440 	let l:macros['VIM_ROOT'] = asyncrun#get_root('%')
+   18              0.000751     let l:macros['VIM_HOME'] = expand(split(&rtp, ',')[0])
+   18              0.000180 	let l:macros['VIM_PRONAME'] = fnamemodify(l:macros['VIM_ROOT'], ':t')
+   18              0.000137 	let l:macros['VIM_DIRNAME'] = fnamemodify(l:macros['VIM_CWD'], ':t')
+   18              0.000083 	let l:macros['VIM_PWD'] = l:macros['VIM_CWD']
+   18              0.000081 	let l:macros['<cwd>'] = l:macros['VIM_CWD']
+   18              0.000079 	let l:macros['<root>'] = l:macros['VIM_ROOT']
+   18              0.000078 	let l:macros['<pwd>'] = l:macros['VIM_PWD']
+   18              0.000053 	let l:retval = ''
+                            
+                            	" handle: empty extension
+   18              0.000107 	if expand("%:e") == ''
+                            		let l:macros['VIM_FILEEXT'] = ''
+   18              0.000024 	endif
+                            
+                            	" extract options
+   18   0.014298   0.000750 	let [l:command, l:opts] = s:ExtractOpt(s:StringStrip(a:args))
+                            
+                            	" check lazy load
+   18              0.000114 	if get(l:opts, 'mode', '') == 'load'
+                            		return ''
+   18              0.000021 	endif
+                            
+                            	" combine options
+   18              0.000128 	if type(a:opts) == type({})
+   36              0.000226 		for [l:key, l:val] in items(a:opts)
+   18              0.000112 			let l:opts[l:key] = l:val
+   36              0.000104 		endfor
+   18              0.000025 	endif
+                            
+                            	" parse makeprg/grepprg and return
+   18              0.000067 	if l:opts.program == 'parse'
+                            		let s:async_program_cmd = l:command
+                            		return s:async_program_cmd
+   18              0.000023 	endif
+                            
+                            	" update marcros
+   18              0.000142 	let l:macros['VIM_RUNNAME'] = get(l:opts, 'name', '')
+                            
+                            	" update info (current running command text)
+   18              0.000101 	let g:asyncrun_info = a:args
+                            
+                            	" setup range
+   18              0.000063 	let l:opts.range = 0
+   18              0.000061 	let l:opts.range_top = 0
+   18              0.000050 	let l:opts.range_bot = 0
+   18              0.000048 	let l:opts.range_buf = 0
+                            
+   18              0.000048 	if a:0 >= 3
+                            		if a:1 > 0 && a:2 <= a:3
+                            			let l:opts.range = 2
+                            			let l:opts.range_top = a:2
+                            			let l:opts.range_bot = a:3
+                            			let l:opts.range_buf = bufnr('%')
+                            		endif
+   18              0.000024 	endif
+                            
+                            	" check cwd
+   18              0.000062 	if l:opts.cwd != ''
+                            		for [l:key, l:val] in items(l:macros)
+                            			let l:replace = (l:key[0] != '<')? '$('.l:key.')' : l:key
+                            			let l:opts.cwd = s:StringReplace(l:opts.cwd, l:replace, l:val)
+                            		endfor
+                            		let l:opts.savecwd = getcwd()
+                            		silent! call s:chdir(l:opts.cwd)
+                            		let l:macros['VIM_CWD'] = getcwd()
+                            		let l:macros['VIM_RELDIR'] = expand("%:h:.")
+                            		let l:macros['VIM_RELNAME'] = expand("%:p:.")
+                            		let l:macros['VIM_CFILE'] = expand("<cfile>")
+                            		let l:macros['VIM_DIRNAME'] = fnamemodify(l:macros['VIM_CWD'], ':t')
+                            		let l:macros['<cwd>'] = l:macros['VIM_CWD']
+   18              0.000021 	endif
+                            
+                            	" windows can use $(WSL_XXX)
+   18              0.000062 	if s:asyncrun_windows != 0
+                            		let wslnames = ['FILEPATH', 'FILENAME', 'FILEDIR', 'FILENOEXT']
+                            		let wslnames += ['PATHNOEXT', 'FILEEXT', 'FILETYPE', 'RELDIR']
+                            		let wslnames += ['RELNAME', 'CFILE', 'ROOT', 'HOME', 'CWD']
+                            		for name in wslnames
+                            			let src = l:macros['VIM_' . name]
+                            			let l:macros['WSL_' . name] = asyncrun#path_win2unix(src, '/mnt')
+                            		endfor
+   18              0.000023 	endif
+                            
+                            	" replace macros and setup environment variables
+  504              0.001864 	for [l:key, l:val] in items(l:macros)
+  486              0.003067 		let l:replace = (l:key[0] != '<')? '$('.l:key.')' : l:key
+  486              0.001347 		if l:key[0] != '<'
+  432              0.001681 			if strpart(l:key, 0, 4) != 'WSL_'
+  432              0.003970 				exec 'let $'.l:key.' = l:val'
+  432              0.000484 			endif
+  486              0.000494 		endif
+  486   0.016543   0.006870 		let l:command = s:StringReplace(l:command, l:replace, l:val)
+  486   0.012527   0.006646 		let l:opts.text = s:StringReplace(l:opts.text, l:replace, l:val)
+  504              0.000707 	endfor
+                            
+                            	" config
+   18              0.000089 	let l:opts.cmd = l:command
+   18              0.000064 	let l:opts.macros = l:macros
+   18              0.000122 	let l:opts.mode = get(l:opts, 'mode', g:asyncrun_mode)
+   18              0.000138 	let l:opts.errorformat = get(l:opts, 'errorformat', &errorformat)
+   18              0.000097 	let s:async_scroll = (a:bang == '!')? 0 : 1
+                            
+                            	" check if need to save
+   18              0.000079 	let l:save = get(l:opts, 'save', '')
+                            
+   18              0.000050 	if l:save == ''
+   18              0.000085 		let l:save = ''. g:asyncrun_save
+   18              0.000024 	endif
+                            
+   18              0.000043 	if l:save == '1'
+                            		silent! update
+   18              0.000049 	elseif l:save
+                            		silent! wall
+   18              0.000026 	endif
+                            
+                            	" run command
+   18   0.064395   0.001328 	let l:retval = s:run(l:opts)
+                            
+                            	" restore cwd
+   18              0.000073 	if l:opts.cwd != ''
+                            		silent! call s:chdir(l:opts.savecwd)
+   18              0.000022 	endif
+                            
+   18              0.000097 	return l:retval
+
+FUNCTION  <SNR>5_BuildInfBar()
+    Defined: ~/.vim/bundle/long-statusline/plugin/long-statusline.vim:105
+Called 561 times
+Total time:   0.066675
+ Self time:   0.066675
+
+count  total (s)   self (s)
+  561              0.003838     let l:infBHighlight = (a:isActiveWindow)? "InfB" : "DisInfB"
+  561              0.003986     let l:infBar = s:lASym . "%#" . l:infBHighlight . "# "
+                            
+  561              0.002891     if s:GitStatus[a:buf]["IsGit"]
+  539              0.007285         let l:infBar .= s:gitBranchSym . " " .  s:GitStatus[a:buf]["BranchName"] . s:GitStatus[a:buf]["Dirty"]
+                            
+  539              0.005538         let l:infBar .= "%#" . l:infBHighlight . "Strick#" .  s:sepASym . "  %#" . l:infBHighlight . "#"
+                                    
+  539              0.002676         if s:GitStatus[a:buf]["IsTracked"]
+  539              0.005352             let l:infBar .= s:gitInsSym . " " . s:GitStatus[a:buf]["InsertNum"] . " "
+  539              0.004631             let l:infBar .= s:gitDelSym . " " . s:GitStatus[a:buf]["DeleteNum"]
+                                    else
+                                        let l:infBar .= s:gitUnTckSym
+  539              0.000805         endif
+                            
+  539              0.005020         let l:infBar .= "%#" . l:infBHighlight . "Strick#" .  s:sepASym . "  %#" . l:infBHighlight . "#"
+                            
+  561              0.000831     endif
+                              
+  561              0.006188     let l:infBar .= s:cnumSym . " %c" . "%#" . l:infBHighlight .  "Strick#" . s:sepASym . "  %#" . l:infBHighlight . "#"
+                            
+  561              0.002733     let l:infBar .= s:lnumSym . " %l"
+  561              0.004548     let l:infBar .= " %#RCSep" . l:infBHighlight . "#" .  s:sepBSym . "  %#RC#%2P "
+                            
+  561              0.001885     return l:infBar
+
+FUNCTION  <SNR>5_BuildFilenameLbl()
+    Defined: ~/.vim/bundle/long-statusline/plugin/long-statusline.vim:79
+Called 561 times
+Total time:   0.104281
+ Self time:   0.050218
+
+count  total (s)   self (s)
+  561              0.008763     let l:bufreadonly = getbufvar(a:buf, "&readonly") ||  (getbufvar(a:buf, "&modifiable") == 0)
+                            
+  561   0.060904   0.012983     let l:middleText = "%#FlnLbl#" . s:GetFilename(a:buf)  . " " .  ((l:bufreadonly) ? s:readonlySym . " " : "")
+                            
+  561              0.002891     let l:md = mode()
+  561              0.003593     if (l:md ==? "i" || l:md ==# "R") && (a:isActiveWindow)
+                                    " Consult Taglist about nearby tag
+    4   0.006212   0.000070         let l:funcProto = Tlist_Get_Tag_Prototype_By_Line()
+                            
+    4              0.000018         if (len(l:funcProto))
+                                        " Show function name instead in insert or replace mode
+                                        let l:middleText = "%#FuncLbl#" . s:tagNameSym .  " " . s:RightTruncate(l:funcProto,  (winwidth(0) - ((s:GitStatus[a:buf]["IsGit"]) ? 69 : 45)))
+                            
+    4              0.000006         endif
+                            
+  561              0.000817     endif
+                            
+  561              0.003075     return " %<%(" . l:middleText . "%)"
+
+FUNCTION  <SNR>3_AsyncRun_Job_AutoScroll()
+    Defined: ~/.vim/bundle/asyncrun.vim/plugin/asyncrun.vim:346
+Called 18 times
+Total time:   0.000496
+ Self time:   0.000496
+
+count  total (s)   self (s)
+   18              0.000073 	if s:async_quick == 0
+                            		if &buftype == 'quickfix'
+                            			silent exec 'normal! G'
+                            		endif
+   18              0.000033 	else
+   18              0.000058 		cbottom
+   18              0.000029 	endif
+
+FUNCTION  <SNR>6_StopPoller()
+    Defined: ~/.vim/bundle/YouCompleteMe/autoload/youcompleteme.vim:524
+Called 5 times
+Total time:   0.000020
+ Self time:   0.000020
+
+count  total (s)   self (s)
+    5              0.000012   call timer_stop( a:poller.id )
+    5              0.000007   let a:poller.id = -1
+
+FUNCTION  <SNR>3_AsyncRun_Job_CheckScroll()
+    Defined: ~/.vim/bundle/asyncrun.vim/plugin/asyncrun.vim:357
+Called 70 times
+Total time:   0.001719
+ Self time:   0.001719
+
+count  total (s)   self (s)
+   70              0.000322 	if g:asyncrun_last == 0
+   70              0.000321 		if &buftype == 'quickfix'
+                            			return (line('.') == line('$'))
+   70              0.000148 		else
+   70              0.000204 			return 1
+                            		endif
+                            	elseif g:asyncrun_last == 1
+                            		let s:async_check_last = 1
+                            		let l:winnr = winnr()
+                            		" Execute AsyncRun_Job_Cursor() in quickfix
+                            		let l:quickfixwinnr = bufwinnr("[Quickfix List]")
+                            		if l:quickfixwinnr != -1  " -1 mean the buffer has no window or do not exists
+                            			noautocmd exec '' . l:quickfixwinnr . 'windo call s:AsyncRun_Job_Cursor()'
+                            		endif
+                            		noautocmd silent! exec ''.l:winnr.'wincmd w'
+                            		return s:async_check_last
+                            	elseif g:asyncrun_last == 2
+                            		return 1
+                            	else
+                            		if &buftype == 'quickfix'
+                            			return (line('.') == line('$'))
+                            		else
+                            			return (!pumvisible())
+                            		endif
+                            	endif
+
+FUNCTION  asyncrun#get_root()
+    Defined: ~/.vim/bundle/asyncrun.vim/plugin/asyncrun.vim:1066
+Called 18 times
+Total time:   0.037421
+ Self time:   0.001485
+
+count  total (s)   self (s)
+   18              0.000204 	let markers = ['.project', '.git', '.hg', '.svn', '.root']
+   18              0.000118 	if exists('g:asyncrun_rootmarks')
+                            		let markers = g:asyncrun_rootmarks
+   18              0.000034 	endif
+   18              0.000057 	if a:0 > 0
+                            		if type(a:1) == type([])
+                            			let markers = a:1
+                            		endif
+   18              0.000025 	endif
+   18              0.000086 	let strict = (a:0 >= 2)? (a:2) : 0
+   18   0.036343   0.000407 	let l:hr = s:find_root(a:path, markers, strict)
+   18              0.000042 	if s:asyncrun_windows
+                            		let l:hr = s:StringReplace(l:hr, '/', "\\")
+   18              0.000024 	endif
+   18              0.000052 	return l:hr
+
+FUNCTION  <SNR>6_OnVimLeave()
+    Defined: ~/.vim/bundle/YouCompleteMe/autoload/youcompleteme.vim:530
+Called 1 time
+Total time:   0.006578
+ Self time:   0.006558
+
+count  total (s)   self (s)
+                              " Workaround a NeoVim issue - not shutting down timers correctly
+                              " https://github.com/neovim/neovim/issues/6840
+    6              0.000013   for poller in values( s:pollers )
+    5   0.000045   0.000025     call s:StopPoller( poller )
+    6              0.000005   endfor
+    1              0.006510   py3 ycm_state.OnVimLeave()
+
+FUNCTION  <SNR>6_SetUpCompleteopt()
+    Defined: ~/.vim/bundle/YouCompleteMe/autoload/youcompleteme.vim:490
+Called 1 time
+Total time:   0.000021
+ Self time:   0.000021
+
+count  total (s)   self (s)
+                              " Some plugins (I'm looking at you, vim-notes) change completeopt by for
+                              " instance adding 'longest'. This breaks YCM. So we force our settings.
+                              " There's no two ways about this: if you want to use YCM then you have to
+                              " have these completeopt settings, otherwise YCM won't work at all.
+                            
+                              " We need menuone in completeopt, otherwise when there's only one candidate
+                              " for completion, the menu doesn't show up.
+    1              0.000004   set completeopt-=menu
+    1              0.000002   set completeopt+=menuone
+                            
+                              " This is unnecessary with our features. People use this option to insert
+                              " the common prefix of all the matches and then add more differentiating chars
+                              " so that they can select a more specific match. With our features, they
+                              " don't need to insert the prefix; they just type the differentiating chars.
+                              " Also, having this option set breaks the plugin.
+    1              0.000002   set completeopt-=longest
+                            
+    1              0.000005   if g:ycm_add_preview_to_completeopt ==# 'popup' && exists( '*popup_open' )
+                                set completeopt+=popup
+    1              0.000002   elseif g:ycm_add_preview_to_completeopt
+                                set completeopt+=preview
+    1              0.000001   endif
+
+FUNCTION  <SNR>3_AsyncRun_Job_OnClose()
+    Defined: ~/.vim/bundle/asyncrun.vim/plugin/asyncrun.vim:558
+Called 18 times
+Total time:   0.002252
+ Self time:   0.002217
+
+count  total (s)   self (s)
+                            	" caddexpr "[close]"
+   18              0.000266 	let s:async_debug = 1
+   18              0.000069 	let l:limit = 128
+   18              0.000138 	let l:options = {'timeout':0}
+   18              0.000201 	while ch_status(a:channel) == 'buffered'
+                            		let l:text = ch_read(a:channel, l:options)
+                            		if l:text == '' " important when child process is killed
+                            			let l:limit -= 1
+                            			if l:limit < 0 | break | endif
+                            		else
+                            			call s:AsyncRun_Job_OnCallback(a:channel, l:text)
+                            		endif
+   18              0.000092 	endwhile
+   18              0.000062 	let s:async_debug = 0
+   18              0.000160 	if exists('s:async_job')
+   18   0.000377   0.000342 		call job_status(s:async_job)
+   18              0.000026 	endif
+   18              0.000108 	let s:async_state = or(s:async_state, 4)
+
+FUNCTION  <SNR>6_OnBufferEnter()
+    Defined: ~/.vim/bundle/YouCompleteMe/autoload/youcompleteme.vim:629
+Called 26 times
+Total time:   0.006724
+ Self time:   0.001474
+
+count  total (s)   self (s)
+   26   0.002005   0.000657   call s:StartMessagePoll()
+   26   0.004562   0.000660   if !s:VisitedBufferRequiresReparse()
+   26              0.000064     return
+                              endif
+                            
+                              call s:SetUpCompleteopt()
+                              call s:SetCompleteFunc()
+                            
+                              py3 ycm_state.OnBufferVisit()
+                              " Last parse may be outdated because of changes from other buffers. Force a
+                              " new parse.
+                              call s:OnFileReadyToParse( 1 )
+
+FUNCTION  <SNR>5_ManageWinStl()
+    Defined: ~/.vim/bundle/long-statusline/plugin/long-statusline.vim:176
+Called 39 times
+Total time:   0.049310
+ Self time:   0.049310
+
+count  total (s)   self (s)
+   39              0.000951     let l:bottomRightWin = winnr('$')
+   39              0.000251     let l:taglistWin = -1
+                            
+  255              0.001293     for n in range(1, bottomRightWin)
+  216              0.001624         let l:wintype = win_gettype(n)
+                            
+                                    " Ignore popup & autocmd
+  216              0.001286         if (l:wintype !=# 'popup' || l:wintype !=# 'autocmd')
+  216              0.001311             let l:bufnum = winbufnr(n)
+  216              0.001839             let l:winbufname = bufname(l:bufnum)
+  216              0.001267             let l:winid = win_getid(n)
+  216              0.002814             let l:isPrv = getwinvar(n, "&pvw")
+  216              0.011739             let l:isHelp = getbufvar(l:winbufname, "&ft") ==# "help"
+  216              0.002020             let l:isQf = getwinvar(n, '&syntax') == 'qf'
+                            
+  216              0.001172             if l:winbufname ==# g:TagList_title
+                                            " Set the taglist status line
+                                            call setwinvar(n, '&statusline', "%!SetTaglistSts()")
+                                            let l:taglistWin = n
+                            
+  216              0.001672             elseif l:isPrv || l:isHelp || l:isQf || l:wintype ==# "command"
+                                            " Set straight line
+                                            call setwinvar(n, '&statusline',  "%#StraightLine#%{" .  "repeat('━',\ winwidth(win_id2win(".l:winid.")))" .  "}")
+                            
+  216              0.002531             elseif (n == l:bottomRightWin) &&  ((winwidth(n) + winwidth(1) + 1 ) == &columns) &&  l:taglistWin == 1
+                            
+                                            " Only two windows in the bottom
+                                            " Two arrows for mode label
+                                            call setwinvar(n, '&statusline', "%!SetStatusLine(".l:winid.", 1)")
+                            
+  216              0.000471             else
+                                            " Other windows status lines
+  216              0.004093                 call setwinvar(n, '&statusline', "%!SetStatusLine(".l:winid.", 0)")
+  216              0.000529             end
+                            
+  216              0.000388         endif
+                            
+  255              0.000695     endfor
+
+FUNCTION  <SNR>6_SetUpCommands()
+    Defined: ~/.vim/bundle/YouCompleteMe/autoload/youcompleteme.vim:1175
+Called 1 time
+Total time:   0.000194
+ Self time:   0.000194
+
+count  total (s)   self (s)
+    1              0.000013   command! YcmRestartServer call s:RestartServer()
+    1              0.000005   command! YcmDebugInfo call s:DebugInfo()
+    1              0.000014   command! -nargs=* -complete=custom,youcompleteme#LogsComplete -count=0 YcmToggleLogs call s:ToggleLogs( <f-count>, <f-mods>, <f-args>)
+    1              0.000082   if py3eval( 'vimsupport.VimVersionAtLeast( "7.4.1898" )' )
+    1              0.000041     command! -nargs=* -complete=custom,youcompleteme#SubCommandsComplete -range YcmCompleter call s:CompleterCommand(<q-mods>,                                      <count>,                                      <line1>,                                      <line2>,                                      <f-args>)
+                              else
+                                command! -nargs=* -complete=custom,youcompleteme#SubCommandsComplete -range YcmCompleter call s:CompleterCommand('',                                      <count>,                                      <line1>,                                      <line2>,                                      <f-args>)
+    1              0.000000   endif
+    1              0.000006   command! YcmDiags call s:ShowDiagnostics()
+    1              0.000006   command! YcmShowDetailedDiagnostic call s:ShowDetailedDiagnostic()
+    1              0.000015   command! YcmForceCompileAndDiagnostics call s:ForceCompileAndDiagnostics()
+
+FUNCTION  AsyncGitCallback()
+    Defined: ~/.vim/bundle/long-statusline/plugin/long-statusline.vim:234
+Called 18 times
+Total time:   0.005901
+ Self time:   0.005901
+
+count  total (s)   self (s)
+                            
+   18              0.000137     if g:asyncrun_code != 0
+                                    " If, for any reason, the command was not successfull, abort
+                                    let s:GitStatus[a:buf]["LocalEnable"] = 0
+                                    return
+   18              0.000035     endif
+                            
+   18              0.000200     if !has_key(s:GitStatus, a:buf)
+                                    let s:GitStatus[a:buf] = {"LocalEnable" : 1 ,"IsGit": 0, "RootDir": "", "BranchName": "",  "Dirty": "", "IsTracked": 0, "InsertNum": 0, "DeleteNum": 0, "CacheExpired": 0}
+   18              0.000029     endif
+                            
+   18              0.001734     let l:lines = readfile(a:tmpfile)
+   18              0.000112     let l:maxExpectedLines = 3
+                            
+   18              0.000065     if a:isFullUpdate
+   16              0.000492         let s:GitStatus[a:buf]["RootDir"] = trim(fnamemodify(l:lines[0], ":h"))
+   16              0.000273         let s:GitStatus[a:buf]["BranchName"] = trim(fnamemodify(l:lines[1], ":t"))
+   16              0.000070         let l:maxExpectedLines = 5
+   18              0.000042     endif
+                            
+   18              0.000335     let s:GitStatus[a:buf]["IsTracked"] = str2nr(l:lines[l:maxExpectedLines - 3])
+   18              0.000118     let s:GitStatus[a:buf]["InsertNum"] = 0
+   18              0.000133     let s:GitStatus[a:buf]["DeleteNum"] = 0
+   18              0.000119     let s:GitStatus[a:buf]["Dirty"] = ""
+                            
+   18              0.000135     if len(l:lines) == l:maxExpectedLines
+    6              0.000037         let s:GitStatus[a:buf]["Dirty"] = "*"
+    6              0.000265         let l:splitdiff = split(l:lines[l:maxExpectedLines-1])
+    6              0.000072         let s:GitStatus[a:buf]["InsertNum"] = trim(l:splitdiff[0])
+    6              0.000057         let s:GitStatus[a:buf]["DeleteNum"] = trim(l:splitdiff[1])
+                            
+   12              0.000174     elseif len(l:lines) == l:maxExpectedLines-1
+   12              0.000080         let s:GitStatus[a:buf]["Dirty"] = "*"
+   18              0.000033     endif
+                            
+   18              0.000121     let s:GitStatus[a:buf]["IsGit"] = 1
+
+FUNCTION  <SNR>6_SetUpBackwardsCompatibility()
+    Defined: ~/.vim/bundle/YouCompleteMe/autoload/youcompleteme.vim:388
+Called 1 time
+Total time:   0.000014
+ Self time:   0.000014
+
+count  total (s)   self (s)
+    1              0.000005   let complete_in_comments_and_strings = get( g:, 'ycm_complete_in_comments_and_strings', 0 )
+                            
+    1              0.000002   if complete_in_comments_and_strings
+                                let g:ycm_complete_in_strings = 1
+                                let g:ycm_complete_in_comments = 1
+    1              0.000001   endif
+                            
+                              " ycm_filetypes_to_completely_ignore is the old name for fileype_blacklist
+    1              0.000002   if has_key( g:, 'ycm_filetypes_to_completely_ignore' )
+                                let g:filetype_blacklist =  g:ycm_filetypes_to_completely_ignore
+    1              0.000001   endif
+
+FUNCTION  <SNR>6_OnFileSave()
+    Defined: ~/.vim/bundle/YouCompleteMe/autoload/youcompleteme.vim:620
+Called 12 times
+Total time:   0.000621
+ Self time:   0.000274
+
+count  total (s)   self (s)
+   12              0.000097   let buffer_number = str2nr( expand( '<abuf>' ) )
+   12   0.000502   0.000155   if !s:AllowedToCompleteInBuffer( buffer_number )
+   12              0.000014     return
+                              endif
+                              py3 ycm_state.OnFileSave( vimsupport.GetIntValue( 'buffer_number' ) )
+
+FUNCTION  <SNR>6_TurnOffSyntasticForCFamily()
+    Defined: ~/.vim/bundle/YouCompleteMe/autoload/youcompleteme.vim:405
+Called 1 time
+Total time:   0.000014
+ Self time:   0.000014
+
+count  total (s)   self (s)
+    1              0.000003   let g:syntastic_cpp_checkers = []
+    1              0.000004   let g:syntastic_c_checkers = []
+    1              0.000001   let g:syntastic_objc_checkers = []
+    1              0.000003   let g:syntastic_objcpp_checkers = []
+    1              0.000002   let g:syntastic_cuda_checkers = []
+
+FUNCTION  <SNR>6_SetUpOptions()
+    Defined: ~/.vim/bundle/YouCompleteMe/autoload/youcompleteme.vim:114
+Called 1 time
+Total time:   0.000529
+ Self time:   0.000064
+
+count  total (s)   self (s)
+    1   0.000207   0.000013   call s:SetUpCommands()
+    1   0.000031   0.000008   call s:SetUpCpoptions()
+    1   0.000029   0.000008   call s:SetUpCompleteopt()
+    1   0.000158   0.000008   call s:SetUpKeyMappings()
+                            
+    1              0.000001   if g:ycm_show_diagnostics_ui
+    1   0.000020   0.000006     call s:TurnOffSyntasticForCFamily()
+    1              0.000001   endif
+                            
+    1   0.000058   0.000006   call s:SetUpSigns()
+    1   0.000023   0.000012   call s:SetUpSyntaxHighlighting()
+
+FUNCTION  Tlist_Get_Tag_Prototype_By_Line()
+    Defined: ~/.vim/bundle/taglist/plugin/taglist.vim:3942
+Called 4 times
+Total time:   0.000433
+ Self time:   0.000391
+
+count  total (s)   self (s)
+    4              0.000013     if a:0 == 0
+                                    " Arguments are not supplied. Use the current buffer name
+                                    " and line number
+    4              0.000028         let filename = bufname('%')
+    4              0.000018         let linenr = line('.')
+                                elseif a:0 == 2
+                                    " Filename and line number are specified
+                                    let filename = a:1
+                                    let linenr = a:2
+                                    if linenr !~ '\d\+'
+                                        " Invalid line number
+                                        return ""
+                                    endif
+                                else
+                                    " Sufficient arguments are not supplied
+                                    let msg =  'Usage: Tlist_Get_Tag_Prototype_By_Line <filename> ' . '<line_number>'
+                                    call s:Tlist_Warning_Msg(msg)
+                                    return ""
+    4              0.000005     endif
+                            
+                                " Expand the file to a fully qualified name
+    4              0.000083     let filename = fnamemodify(filename, ':p')
+    4              0.000012     if filename == ''
+                                    return ""
+    4              0.000003     endif
+                            
+    4   0.000111   0.000069     let fidx = s:Tlist_Get_File_Index(filename)
+    4              0.000008     if fidx == -1
+    4              0.000008         return ""
+                                endif
+                            
+                                " If there are no tags for this file, then no need to proceed further
+                                if s:tlist_{fidx}_tag_count == 0
+                                    return ""
+                                endif
+                            
+                                " Get the tag text using the line number
+                                let tidx = s:Tlist_Find_Nearest_Tag_Idx(fidx, linenr)
+                                if tidx == -1
+                                    return ""
+                                endif
+                            
+                                return s:Tlist_Get_Tag_Prototype(fidx, tidx)
+
+FUNCTION  <SNR>3_run()
+    Defined: ~/.vim/bundle/asyncrun.vim/plugin/asyncrun.vim:1363
+Called 18 times
+Total time:   0.063067
+ Self time:   0.014656
+
+count  total (s)   self (s)
+   18              0.000511 	let l:opts = deepcopy(a:opts)
+   18              0.000066 	let l:command = a:opts.cmd
+   18              0.000049 	let l:retval = ''
+   18              0.000055 	let l:mode = g:asyncrun_mode
+   18              0.000044 	let l:runner = ''
+   18              0.000074 	let l:opts.origin = l:opts.cmd
+                            
+   18              0.000052 	if a:opts.mode != ''
+                            		let l:mode = a:opts.mode
+   18              0.000020 	endif
+                            
+                            	" mode alias
+   18              0.000233 	let l:modemap = {'async':0, 'make':1, 'bang':2, 'python':3, 'os':4, 'hide':5, 'terminal': 6, 'execute':1, 'term':6, 'system':4}
+                            
+   18              0.000081 	let l:modemap['external'] = 4
+   18              0.000060 	let l:modemap['quickfix'] = 0
+   18              0.000053 	let l:modemap['vim'] = 2
+                            
+   18              0.000116 	let l:mode = get(l:modemap, l:mode, l:mode)
+                            
+                            	" alias "-mode=raw" to "-mode=async -raw=1"
+   18              0.000123 	if type(l:mode) == type('') && l:mode == 'raw'
+                            		let l:mode = 0
+                            		let l:opts.raw = 1
+   18              0.000079 	elseif type(l:mode) == 0 && l:mode == 6
+                            		let pos = get(l:opts, 'pos', '')
+                            		if has_key(g:asyncrun_runner, pos)
+                            			let l:runner = pos
+                            		elseif pos == 'bang' || pos == 'vim'
+                            			let l:mode = 2
+                            		elseif pos == 'extern' || pos == 'external'
+                            			let l:mode = 4
+                            		elseif pos == 'system' || pos == 'os'
+                            			let l:mode = 4
+                            		elseif pos == 'quickfix'
+                            			let l:mode = 0
+                            			let l:opts.raw = 1
+                            		endif
+   18              0.000020 	endif
+                            
+                            	" process makeprg/grepprg in -program=?
+   18              0.000047 	let l:program = ""
+                            
+   18              0.000109 	let s:async_efm = a:opts.errorformat
+                            
+   18              0.000055 	if l:opts.program == 'make'
+                            		let l:program = &makeprg
+   18              0.000048 	elseif l:opts.program == 'grep'
+                            		let l:program = &grepprg
+                            		let s:async_efm = &grepformat
+   18              0.000038 	elseif l:opts.program == 'wsl'
+                            		if s:asyncrun_windows != 0
+                            			let root = ($SystemRoot == '')? 'C:/Windows' : $SystemRoot
+                            			let t1 = root . '/system32/wsl.exe'
+                            			let t2 = root . '/sysnative/wsl.exe'
+                            			let tt = executable(t1)? t1 : (executable(t2)? t2 : '')
+                            			if tt == ''
+                            				call s:ErrorMsg("not find wsl in your system")
+                            				return
+                            			endif
+                            			let cmd = s:shellescape(substitute(tt, '\\', '\/', 'g'))
+                            			let dist = get(l:opts, 'dist', get(g:, 'asyncrun_dist', ''))
+                            			if dist != ''
+                            				let cmd = cmd . ' -d ' . dist
+                            			endif
+                            			let l:command = cmd . ' ' . l:command
+                            		else
+                            			call s:ErrorMsg("only available for Windows")
+                            			return ''
+                            		endif
+   18              0.000043 	elseif l:opts.program != ''
+                            		let name = l:opts.program
+                            		let test = ['cygwin', 'msys', 'mingw32', 'mingw64']
+                            		if index(test, name) >= 0
+                            			unsilent let l:command = s:program_msys(l:opts)
+                            		else
+                            			if has_key(g:asyncrun_program, name) == 0
+                            				call s:ErrorMsg(name . " not found in g:asyncrun_program")
+                            				return ''
+                            			endif
+                            			let F = g:asyncrun_program[name]
+                            			if type(F) == type('')
+                            				let F = function(F)
+                            			endif
+                            			unsilent let l:command = F(l:opts)
+                            		endif
+                            		if l:command == ''
+                            			return ''
+                            		endif
+                            		let l:opts.cmd = l:command
+   18              0.000020 	endif
+                            
+   18              0.000047 	if l:program != ''
+                            		if l:program =~# '\$\*'
+                            			let l:command = s:StringReplace(l:program, '\$\*', l:command)
+                            		elseif l:command != ''
+                            			let l:command = l:program . ' ' . l:command
+                            		else
+                            			let l:command = l:program
+                            		endif
+                            		let l:command = s:StringStrip(l:command)
+                            		let s:async_program_cmd = ''
+                            		silent exec 'AsyncRun -program=parse @ '. l:command
+                            		let l:command = s:async_program_cmd
+   18              0.000019 	endif
+                            
+   18              0.000205 	if l:command =~ '^\s*$'
+                            		echohl ErrorMsg
+                            		echom "E471: Command required"
+                            		echohl NONE
+                            		return
+   18              0.000018 	endif
+                            
+   18              0.000118 	let l:wrapper = get(g:, 'asyncrun_wrapper', '')
+                            
+   18              0.000039 	if l:wrapper != ''
+                            		let l:command = l:wrapper . ' ' . l:command
+   18              0.000019 	endif
+                            
+   18              0.000041 	if l:mode >= 10
+                            		let l:opts.cmd = l:command
+                            		if g:asyncrun_hook != ''
+                            			exec 'call '. g:asyncrun_hook .'(l:opts)'
+                            		endif
+                            		return ''
+   18              0.000038 	elseif l:mode == 7
+                            		if s:asyncrun_windows != 0 && s:asyncrun_gui != 0
+                            			let l:mode = 4
+                            		else
+                            			let script = get(g:, 'asyncrun_script', '')
+                            			let l:mode = (script == '')? 2 : 4
+                            		endif
+   18              0.000020 	endif
+                            
+   18              0.000078 	let g:asyncrun_cmd = l:command
+   18   0.005281   0.000233 	let t = s:StringStrip(l:command)
+                            
+   18              0.000135 	if strpart(t, 0, 1) == ':' && g:asyncrun_strict == 0
+                            		exec strpart(t, 1)
+                            		return ''
+   18              0.000049 	elseif l:runner != ''
+                            		let F = g:asyncrun_runner[l:runner]
+                            		if type(F) == type('')
+                            			let F = function(F)
+                            		endif
+                            		let obj = deepcopy(l:opts)
+                            		let obj.cmd = command
+                            		let obj.src = a:opts.cmd
+                            		call F(obj)
+                            		return ''
+   18              0.000018 	endif
+                            
+   18              0.000093 	if exists('g:asyncrun_open')
+                            		let s:asyncrun_open = g:asyncrun_open
+                            		if has_key(a:opts, 'open')
+                            			let s:asyncrun_open = a:opts.open
+                            		endif
+                            		if has_key(a:opts, 'silent')
+                            			if a:opts.silent
+                            				let s:asyncrun_open = 0
+                            			endif
+                            		endif
+   18              0.000021 	endif
+                            
+   18              0.000077 	if l:mode == 0 && s:asyncrun_support != 0
+   18              0.000098 		let s:async_info.postsave = opts.post
+   18              0.000054 		let s:async_info.autosave = opts.auto
+   18              0.000056 		let s:async_info.text = opts.text
+   18              0.000056 		let s:async_info.raw = opts.raw
+   18              0.000056 		let s:async_info.range = opts.range
+   18              0.000061 		let s:async_info.range_top = opts.range_top
+   18              0.000051 		let s:async_info.range_bot = opts.range_bot
+   18              0.000053 		let s:async_info.range_buf = opts.range_buf
+   18              0.000051 		let s:async_info.strip = opts.strip
+   18              0.000064 		let s:async_info.append = opts.append
+   18   0.044076   0.000713 		if s:AsyncRun_Job_Start(l:command) != 0
+                            			call s:AutoCmd('Error')
+   18              0.000087 		endif
+                            	elseif l:mode <= 1 && has('quickfix')
+                            		call s:AutoCmd('Pre')
+                            		call s:AutoCmd('Start')
+                            		let l:makesave = &l:makeprg
+                            		let l:script = s:ScriptWrite(l:command, 0)
+                            		if s:asyncrun_windows != 0
+                            			let &l:makeprg = s:shellescape(l:script)
+                            		else
+                            			let &l:makeprg = 'source '. s:shellescape(l:script)
+                            		endif
+                            		let l:efm1 = &g:efm
+                            		let l:efm2 = &l:efm
+                            		if g:asyncrun_local != 0
+                            			let &g:efm = s:async_efm
+                            			let &l:efm = s:async_efm
+                            		endif
+                            		if has('autocmd')
+                            			call s:AsyncRun_Job_AutoCmd(0, opts.auto)
+                            			exec "noautocmd make!"
+                            			call s:AsyncRun_Job_AutoCmd(1, opts.auto)
+                            		else
+                            			exec "make!"
+                            		endif
+                            		if g:asyncrun_local != 0
+                            			if l:efm1 != &g:efm | let &g:efm = l:efm1 | endif
+                            			if l:efm2 != &l:efm | let &l:efm = l:efm2 | endif
+                            		endif
+                            		let &l:makeprg = l:makesave
+                            		if s:asyncrun_windows == 0
+                            			try | call delete(l:script) | catch | endtry
+                            		endif
+                            		let g:asyncrun_text = opts.text
+                            		if opts.post != ''
+                            			exec opts.post
+                            		endif
+                            		call s:AutoCmd('Stop')
+                            	elseif l:mode <= 2
+                            		let autocmd = get(opts, 'autocmd', 0)
+                            		if autocmd != 0
+                            			call s:AutoCmd('Pre')
+                            			call s:AutoCmd('Start')
+                            		endif
+                            		exec '!'. escape(l:command, '%#')
+                            		let g:asyncrun_text = opts.text
+                            		if opts.post != ''
+                            			exec opts.post
+                            		endif
+                            		if autocmd != 0
+                            			call s:AutoCmd('Stop')
+                            		endif
+                            	elseif l:mode == 3
+                            		if s:asyncrun_windows == 0
+                            			let l:retval = system(l:command)
+                            			let g:asyncrun_shell_error = v:shell_error
+                            		elseif has('nvim')
+                            			let l:retval = system(l:command)
+                            			let g:asyncrun_shell_error = v:shell_error
+                            		elseif has('python3')
+                            			let l:script = s:ScriptWrite(l:command, 0)
+                            			py3 import subprocess, vim
+                            			py3 argv = {'args': vim.eval('l:script'), 'shell': True}
+                            			py3 argv['stdout'] = subprocess.PIPE
+                            			py3 argv['stderr'] = subprocess.STDOUT
+                            			py3 p = subprocess.Popen(**argv)
+                            			py3 text = p.stdout.read()
+                            			py3 p.stdout.close()
+                            			py3 c = p.wait()
+                            			if has('patch-7.4.145')
+                            				let l:retval = py3eval('text')
+                            				let g:asyncrun_shell_error = py3eval('c')
+                            			else
+                            				py3 text = text.replace('\\', '\\\\').replace('"', '\\"')
+                            				py3 text = text.replace('\n', '\\n').replace('\r', '\\r')
+                            				py3 vim.command('let l:retval = "%s"'%text)
+                            				py3 vim.command('let g:asyncrun_shell_error = %d'%c)
+                            			endif
+                            		elseif has('python')
+                            			let l:script = s:ScriptWrite(l:command, 0)
+                            			py import subprocess, vim
+                            			py argv = {'args': vim.eval('l:script'), 'shell': True}
+                            			py argv['stdout'] = subprocess.PIPE
+                            			py argv['stderr'] = subprocess.STDOUT
+                            			py p = subprocess.Popen(**argv)
+                            			py text = p.stdout.read()
+                            			py p.stdout.close()
+                            			py c = p.wait()
+                            			if has('patch-7.4.145')
+                            				let l:retval = pyeval('text')
+                            				let g:asyncrun_shell_error = pyeval('c')
+                            			else
+                            				py text = text.replace('\\', '\\\\').replace('"', '\\"')
+                            				py text = text.replace('\n', '\\n').replace('\r', '\\r')
+                            				py vim.command('let l:retval = "%s"'%text)
+                            				py vim.command('let g:asyncrun_shell_error = %d'%c)
+                            			endif
+                            		else
+                            			let l:retval = system(l:command)
+                            			let g:asyncrun_shell_error = v:shell_error
+                            		endif
+                            		let g:asyncrun_text = opts.text
+                            		if opts.post != ''
+                            			exec opts.post
+                            		endif
+                            	elseif l:mode <= 5
+                            		let script = get(g:, 'asyncrun_script', '')
+                            		if script != '' && l:mode == 4
+                            			let $VIM_COMMAND = l:command
+                            			let l:command = script . ' ' . l:command
+                            			if s:asyncrun_windows
+                            				let ccc = s:shellescape(s:ScriptWrite(l:command, 0))
+                            				silent exec '!start /b cmd /C '. ccc
+                            			else
+                            				call system(l:command . ' &')
+                            			endif
+                            		elseif s:asyncrun_windows
+                            			if l:mode == 4
+                            				let l:ccc = s:shellescape(s:ScriptWrite(l:command, 1))
+                            				silent exec '!start cmd /C '. l:ccc
+                            			else
+                            				let l:ccc = s:shellescape(s:ScriptWrite(l:command, 0))
+                            				silent exec '!start /b cmd /C '. l:ccc
+                            			endif
+                            			redraw
+                            		else
+                            			if l:mode == 4
+                            				exec '!' . escape(l:command, '%#')
+                            			else
+                            				call system(l:command . ' &')
+                            			endif
+                            		endif
+                            		let g:asyncrun_text = opts.text
+                            		if opts.post != ''
+                            			exec opts.post
+                            		endif
+                            	elseif l:mode == 6
+                            		let opts.cmd = l:command
+                            		call s:start_in_terminal(opts)
+   18              0.000026 	endif
+                            
+   18              0.000135 	return l:retval
+
+FUNCTION  <SNR>3_AsyncRun_Job_Start()
+    Defined: ~/.vim/bundle/asyncrun.vim/plugin/asyncrun.vim:628
+Called 18 times
+Total time:   0.043363
+ Self time:   0.037498
+
+count  total (s)   self (s)
+   18              0.000059 	let l:running = 0
+   18              0.000049 	let l:empty = 0
+   18              0.000051 	if s:asyncrun_support == 0
+                            		call s:NotSupport()
+                            		return -1
+   18              0.000018 	endif
+   18              0.000076 	if exists('s:async_job')
+                            		if !has('nvim')
+                            			if job_status(s:async_job) == 'run'
+                            				let l:running = 1
+                            			endif
+                            		else
+                            			if s:async_job > 0
+                            				let l:running = 1
+                            			endif
+                            		endif
+   18              0.000017 	endif
+   18              0.000087 	if type(a:cmd) == 1
+   18              0.000110 		if a:cmd == '' | let l:empty = 1 | endif
+                            	elseif type(a:cmd) == 3
+                            		if a:cmd == [] | let l:empty = 1 | endif
+   18              0.000017 	endif
+   18              0.000075 	if s:async_state != 0 || l:running != 0
+                            		call s:ErrorMsg("background job is still running")
+                            		return -2
+   18              0.000019 	endif
+   18              0.000040 	if l:empty != 0
+                            		call s:ErrorMsg("empty arguments")
+                            		return -3
+   18              0.000020 	endif
+   18              0.000045 	let l:args = []
+   18              0.000051 	if g:asyncrun_shell == ''
+   18              0.000311 		let l:args += split(&shell)
+   18              0.000182 		let l:args += split(&shellcmdflag)
+                            	else
+                            		let l:args += split(g:asyncrun_shell)
+                            		let l:args += split(g:asyncrun_shellflag)
+   18              0.000021 	endif
+   18              0.000094 	let s:async_info.errorformat = s:async_efm
+   18              0.000047 	let l:name = []
+   18              0.000065 	if type(a:cmd) == 1
+   18              0.000055 		let l:name = a:cmd
+   18              0.000049 		if s:asyncrun_windows == 0
+   18              0.000083 			let l:args += [a:cmd]
+                            		else
+                            			let l:tmp = s:ScriptWrite(a:cmd, 0)
+                            			if s:async_nvim == 0
+                            				let l:args += [l:tmp]
+                            			else
+                            				let l:args = s:shellescape(l:tmp)
+                            			endif
+   18              0.000018 		endif
+                            	elseif type(a:cmd) == 3
+                            		if s:asyncrun_windows == 0
+                            			let l:temp = []
+                            			for l:item in a:cmd
+                            				if index(['|', '`'], l:item) < 0
+                            					let l:temp += [fnameescape(l:item)]
+                            				else
+                            					let l:temp += ['|']
+                            				endif
+                            			endfor
+                            			let l:args += [join(l:temp, ' ')]
+                            		else
+                            			let l:args += a:cmd
+                            		endif
+                            		let l:vector = []
+                            		for l:x in a:cmd
+                            			let l:vector += ['"'.l:x.'"']
+                            		endfor
+                            		let l:name = join(l:vector, ', ')
+   18              0.000023 	endif
+   18              0.000063 	let s:async_state = 0
+   18              0.000072 	let s:async_output = {}
+   18              0.000046 	let s:async_head = 0
+   18              0.000036 	let s:async_tail = 0
+   18              0.000076 	let s:async_info.post = s:async_info.postsave
+   18              0.000062 	let s:async_info.auto = s:async_info.autosave
+   18              0.000048 	let s:async_info.postsave = ''
+   18              0.000042 	let s:async_info.autosave = ''
+   18              0.000068 	let g:asyncrun_text = s:async_info.text
+   18   0.001503   0.000237 	call s:AutoCmd('Pre')
+   18              0.000053 	if s:async_nvim == 0
+   18              0.000074 		let l:options = {}
+   18              0.000252 		let l:options['callback'] = function('s:AsyncRun_Job_OnCallback')
+   18              0.000146 		let l:options['close_cb'] = function('s:AsyncRun_Job_OnClose')
+   18              0.000156 		let l:options['exit_cb'] = function('s:AsyncRun_Job_OnExit')
+   18              0.000059 		let l:options['out_io'] = 'pipe'
+   18              0.000052 		let l:options['err_io'] = 'out'
+   18              0.000055 		let l:options['in_io'] = 'null'
+   18              0.000063 		let l:options['out_mode'] = 'nl'
+   18              0.000053 		let l:options['err_mode'] = 'nl'
+   18              0.000062 		let l:options['stoponexit'] = 'term'
+   18              0.000066 		if g:asyncrun_stop != ''
+                            			let l:options['stoponexit'] = g:asyncrun_stop
+   18              0.000020 		endif
+   18              0.000054 		if s:async_info.range > 0
+                            			let l:options['in_io'] = 'buffer'
+                            			let l:options['in_mode'] = 'nl'
+                            			let l:options['in_buf'] = s:async_info.range_buf
+                            			let l:options['in_top'] = s:async_info.range_top
+                            			let l:options['in_bot'] = s:async_info.range_bot
+   18              0.000123 		elseif exists('*ch_close_in')
+   18              0.000048 			if g:asyncrun_stdin != 0
+                            				let l:options['in_io'] = 'pipe'
+   18              0.000025 			endif
+   18              0.000018 		endif
+   18              0.019842 		let s:async_job = job_start(l:args, l:options)
+   18              0.000346 		let l:success = (job_status(s:async_job) != 'fail')? 1 : 0
+   18              0.000137 		if l:success && l:options['in_io'] == 'pipe'
+                            			silent! call ch_close_in(job_getchannel(s:async_job))
+   18              0.000028 		endif
+                            	else
+                            		let l:callbacks = {'shell': 'AsyncRun'}
+                            		let l:callbacks['on_stdout'] = function('s:AsyncRun_Job_NeoVim')
+                            		let l:callbacks['on_stderr'] = function('s:AsyncRun_Job_NeoVim')
+                            		let l:callbacks['on_exit'] = function('s:AsyncRun_Job_NeoVim')
+                            		let s:neovim_stdout = ''
+                            		let s:neovim_stderr = ''
+                            		let s:async_job = jobstart(l:args, l:callbacks)
+                            		let l:success = (s:async_job > 0)? 1 : 0
+                            		if l:success != 0
+                            			if s:async_info.range > 0
+                            				let l:top = s:async_info.range_top
+                            				let l:bot = s:async_info.range_bot
+                            				let l:lines = getline(l:top, l:bot)
+                            				if exists('*chansend')
+                            					call chansend(s:async_job, l:lines)
+                            				elseif exists('*jobsend')
+                            					call jobsend(s:async_job, l:lines)
+                            				endif
+                            			endif
+                            			if exists('*chanclose')
+                            				call chanclose(s:async_job, 'stdin')
+                            			elseif exists('*jobclose')
+                            				call jobclose(s:async_job, 'stdin')
+                            			endif
+                            		endif
+   18              0.000118 	endif
+   18              0.000048 	if l:success != 0
+   18              0.000205 		let s:async_state = or(s:async_state, 1)
+   18              0.000137 		let g:asyncrun_status = "running"
+   18              0.000082 		let s:async_start = localtime()
+   18              0.000253 		let l:arguments = "[".l:name."]"
+   18              0.000144 		let l:title = ':AsyncRun '.l:name
+   18              0.000068 		if !s:async_info.append
+   18              0.000046 			if s:async_nvim == 0
+   18              0.000083 				if v:version >= 800 || has('patch-7.4.2210')
+   18              0.000983 					call setqflist([], ' ', {'title':l:title})
+                            				else
+                            					call setqflist([], ' ')
+   18              0.000022 				endif
+                            			else
+                            				call setqflist([], ' ', l:title)
+   18              0.000020 			endif
+   18              0.000020 		endif
+   18              0.000056 		if !s:async_info.strip
+   18              0.000268 			call setqflist([{'text':l:arguments}], 'a')
+   18              0.000017 		endif
+   18              0.000122 		let l:name = 'g:AsyncRun_Job_OnTimer'
+   18              0.000332 		let s:async_timer = timer_start(100, l:name, {'repeat':-1})
+   18   0.002751   0.001428 		call s:AsyncRun_Job_AutoCmd(0, s:async_info.auto)
+   18   0.003606   0.000330 		call s:AutoCmd('Start')
+   18              0.003642 		redrawstatus!
+                            	else
+                            		unlet s:async_job
+                            		call s:ErrorMsg("Background job start failed '".a:cmd."'")
+                            		redrawstatus!
+                            		return -5
+   18              0.000022 	endif
+   18              0.000129 	return 0
+
+FUNCTIONS SORTED ON TOTAL TIME
+count  total (s)   self (s)  function
+  561   0.489414   0.077346  SetStatusLine()
+   34   0.267725   0.005750  AsyncRun_Job_OnTimer()
+   18   0.249161   0.234030  <SNR>3_AsyncRun_Job_OnFinish()
+  561   0.241112   0.077790  <SNR>5_GitInit()
+   60   0.183612   0.012382  <SNR>5_GitUpdate()
+   18   0.171230   0.041640  asyncrun#run()
+    2   0.116221   0.115983  <SNR>6_PollServerReady()
+  561   0.104281   0.050218  <SNR>5_BuildFilenameLbl()
+    1   0.087995   0.000241  youcompleteme#Enable()
+    1   0.087169             <SNR>6_SetUpPython()
+  561   0.066675             <SNR>5_BuildInfBar()
+   18   0.063067   0.014656  <SNR>3_run()
+   39   0.049310             <SNR>5_ManageWinStl()
+  561   0.047921             <SNR>5_GetFilename()
+   18   0.043363   0.037498  <SNR>3_AsyncRun_Job_Start()
+   18   0.037421   0.001485  asyncrun#get_root()
+   18   0.035936   0.002658  <SNR>3_find_root()
+   52   0.018797   0.017436  <SNR>3_AsyncRun_Job_Update()
+  152   0.017315   0.005269  <SNR>6_AllowedToCompleteInCurrentBuffer()
+   59   0.016596             <SNR>6_UpdateMatches()
+
+FUNCTIONS SORTED ON SELF TIME
+count  total (s)   self (s)  function
+   18   0.249161   0.234030  <SNR>3_AsyncRun_Job_OnFinish()
+    2   0.116221   0.115983  <SNR>6_PollServerReady()
+    1              0.087169  <SNR>6_SetUpPython()
+  561   0.241112   0.077790  <SNR>5_GitInit()
+  561   0.489414   0.077346  SetStatusLine()
+  561              0.066675  <SNR>5_BuildInfBar()
+  561   0.104281   0.050218  <SNR>5_BuildFilenameLbl()
+   39              0.049310  <SNR>5_ManageWinStl()
+  561              0.047921  <SNR>5_GetFilename()
+   18   0.171230   0.041640  asyncrun#run()
+   18   0.043363   0.037498  <SNR>3_AsyncRun_Job_Start()
+   52   0.018797   0.017436  <SNR>3_AsyncRun_Job_Update()
+   59              0.016596  <SNR>6_UpdateMatches()
+  972              0.015554  <SNR>3_StringReplace()
+  156              0.015400  <SNR>3_path_join()
+   18   0.063067   0.014656  <SNR>3_run()
+  170              0.012690  <SNR>6_AllowedToCompleteInBuffer()
+   60   0.183612   0.012382  <SNR>5_GitUpdate()
+   36              0.010690  <SNR>3_StringStrip()
+   18              0.007906  <SNR>3_ExtractOpt()
+

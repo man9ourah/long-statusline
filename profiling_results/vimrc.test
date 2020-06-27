@@ -1,0 +1,16 @@
+set encoding=utf-8
+set termguicolors
+set runtimepath=/home/mansourah/.vim/bundle/taglist
+set runtimepath+=/home/mansourah/.vim/bundle/asyncrun.vim
+set runtimepath+=/home/mansourah/.vim/bundle/YouCompleteMe
+set runtimepath+=/home/mansourah/.vim/bundle/long-statusline 
+
+function! MeasureTime(iter)
+    for l:i in range(a:iter)
+      vsplit
+      redraw
+      quit
+      redraw
+    endfor
+    qa
+endfunction

@@ -1,0 +1,38 @@
+
+
+times in msec
+ clock   self+sourced   self:  sourced script
+ clock   elapsed:              other lines
+
+000.005  000.005: --- VIM STARTING ---
+000.096  000.091: Allocated generic buffers
+000.160  000.064: locale set
+000.166  000.006: clipboard setup
+000.170  000.004: window checked
+000.556  000.386: inits 1
+000.699  000.143: parsing arguments
+000.700  000.001: expanding arguments
+000.723  000.023: shell init
+002.513  001.790: xsmp init
+003.016  000.503: Termcap init
+003.039  000.023: inits 2
+003.241  000.202: init highlight
+003.278  000.037: --cmd commands
+003.537  000.234  000.234: sourcing vimrc.test
+003.543  000.031: sourcing vimrc file(s)
+004.333  000.620  000.620: sourcing /home/mansourah/.vim/bundle/taglist/plugin/taglist.vim
+005.615  001.207  001.207: sourcing /home/mansourah/.vim/bundle/asyncrun.vim/plugin/asyncrun.vim
+006.361  000.662  000.662: sourcing /home/mansourah/.vim/bundle/YouCompleteMe/plugin/youcompleteme.vim
+009.993  003.525  003.525: sourcing /home/mansourah/.vim/bundle/long-statusline/plugin/long-statusline.vim
+009.998  000.441: loading plugins
+010.062  000.064: loading packages
+010.065  000.003: loading after plugins
+010.088  000.023: inits 3
+010.403  000.315: reading viminfo
+012.923  002.520: setup clipboard
+012.937  000.014: setting raw mode
+012.948  000.011: start termcap
+012.988  000.040: clearing screen
+014.189  001.201: opening buffers
+014.191  000.002: BufEnter autocommands
+014.193  000.002: editing files in windows
