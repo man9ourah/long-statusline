@@ -231,7 +231,7 @@ function s:GitToggleGit()
 endfunction
 
 " Async call back to read tmp file and update s:GitStatus
-function g:AsyncGitCallback(isFullUpdate, tmpfile, buf)
+function g:AsyncGitCallback(isFullUpdate, buf)
 
     if g:asyncrun_code != 0
         " If, for any reason, the command was not successfull, abort
@@ -244,23 +244,23 @@ function g:AsyncGitCallback(isFullUpdate, tmpfile, buf)
                                 \ "Dirty": "", "IsTracked": 0, "InsertNum": 0, "DeleteNum": 0, "CacheExpired": 0}
     endif
 
-    let l:lines = readfile(a:tmpfile)
+    let l:lines = getqflist()[1:-2]
     let l:maxExpectedLines = 3
-
+    
     if a:isFullUpdate
-        let s:GitStatus[a:buf]["RootDir"] = trim(fnamemodify(l:lines[0], ":h"))
-        let s:GitStatus[a:buf]["BranchName"] = trim(fnamemodify(l:lines[1], ":t"))
+        let s:GitStatus[a:buf]["RootDir"] = trim(fnamemodify(l:lines[0]["text"], ":h"))
+        let s:GitStatus[a:buf]["BranchName"] = trim(fnamemodify(l:lines[1]["text"], ":t"))
         let l:maxExpectedLines = 5
     endif
 
-    let s:GitStatus[a:buf]["IsTracked"] = str2nr(l:lines[l:maxExpectedLines - 3])
+    let s:GitStatus[a:buf]["IsTracked"] = str2nr(l:lines[l:maxExpectedLines - 3]["text"])
     let s:GitStatus[a:buf]["InsertNum"] = 0
     let s:GitStatus[a:buf]["DeleteNum"] = 0
     let s:GitStatus[a:buf]["Dirty"] = ""
 
     if len(l:lines) == l:maxExpectedLines
         let s:GitStatus[a:buf]["Dirty"] = "*"
-        let l:splitdiff = split(l:lines[l:maxExpectedLines-1])
+        let l:splitdiff = split(l:lines[l:maxExpectedLines-1]["text"])
         let s:GitStatus[a:buf]["InsertNum"] = trim(l:splitdiff[0])
         let s:GitStatus[a:buf]["DeleteNum"] = trim(l:splitdiff[1])
 
@@ -281,26 +281,24 @@ function s:GitUpdate(initOrWrite, ...)
     
     let l:flname = expand("#" . l:buf . ":p")
     let l:parentDir = fnamemodify(l:flname, ":h")
-    let l:tmpfile = tempname()
-    let l:redir = l:tmpfile ." 2> /dev/null "
     let l:isFullUpdate = a:initOrWrite || !s:GitStatus[l:buf]["IsGit"]
     let l:cmd = ""
 
     if l:isFullUpdate
-        let l:cmd  = "git -C " . l:parentDir . " rev-parse --absolute-git-dir > " . l:redir . "&& "
+        let l:cmd  = "git -C " . l:parentDir . " rev-parse --absolute-git-dir 2>/dev/null && "
         let l:cmd .= "(git -C " . l:parentDir . " symbolic-ref HEAD || " 
-        let l:cmd .= "git -C " . l:parentDir . " rev-parse --short HEAD) >> " . l:redir . "&& "
+        let l:cmd .= "git -C " . l:parentDir . " rev-parse --short HEAD) 2>/dev/null && "
     endif
 
     let l:cmd .= "([[ -n $(git -C " . l:parentDir . " ls-files " . l:flname . ") ]] && " . 
-                \ "echo '1'  || echo '0') >> " . l:redir . "&& "
-    let l:cmd .= "([[ -z $(git -C " . l:parentDir . " status -s) ]] || echo '*') >> " . l:redir . "&& "
-    let l:cmd .= "git -C " . l:parentDir . " diff --numstat -- " . l:flname . " >> " . l:redir
+                \ "echo '1'  || echo '0') 2>/dev/null && "
+    let l:cmd .= "([[ -z $(git -C " . l:parentDir . " status -s) ]] || echo '*') 2>/dev/null && "
+    let l:cmd .= "git -C " . l:parentDir . " diff --numstat -- " . l:flname . " 2>/dev/null"
     
     if g:asyncrun_status != "running"
         " Async call to g:AsyncGitCallback()
         call asyncrun#run("", 
-                    \ {"post": "call g:AsyncGitCallback(" . l:isFullUpdate . ", '" . l:tmpfile . "', " .  l:buf . ")"},
+                    \ {"post": "call g:AsyncGitCallback(" . l:isFullUpdate . ", " .  l:buf . ")"},
                     \ l:cmd)
     else
         " If we could not execute it now, void the cache so that it is executed
