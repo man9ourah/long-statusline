@@ -4,47 +4,47 @@
 
 """"""""""""""""""""""""""""""""""""""" Global Variables
 " Dont load more than once
-if exists('g:loaded_statusline')
+if exists('g:loaded_longStl')
   finish
 endif
-let g:loaded_statusline = 1
+let g:loaded_longStl = 1
 
 " Background Colors
 " From left to right
-let s:errLblColor   = "#af0000"
-let s:warnLblColor  = "#ff8700"
-let s:clkLblColor   = "#0a2c3b"
-let s:nLblColor     = "#005F5F"
-let s:vLblColor     = "#87005F"
-let s:rLblColor     = "#52ba00"
-let s:iLblColor     = "#008700"
-let s:sLblColor     = "#0056c4"
-let s:oLblColor     = "#996BA0"
-let s:disLblColor   = "#3f3f45"
-let s:flnLblColor   = "#0A2C3B"
-let s:mFlgColor     = "#7e7e89"
-let s:infBColor     = "#005f87"
-let s:disInfBColor  = "#3f3f45"
-let s:rcLbl         = "#87005F"
+let s:errLblColor   = "#af0000"     " Error label background color
+let s:warnLblColor  = "#ff8700"     " Warning label background color
+let s:clkLblColor   = "#0a2c3b"     " Clock label background color
+let s:nLblColor     = "#005F5F"     " Normal mode label background color
+let s:vLblColor     = "#87005F"     " Visual mode label background color
+let s:rLblColor     = "#52ba00"     " Replace mode label background color
+let s:iLblColor     = "#008700"     " Insert mode label background color
+let s:sLblColor     = "#0056c4"     " Select mode label background color
+let s:oLblColor     = "#996BA0"     " Other modes label background color
+let s:disLblColor   = "#3f3f45"     " Inactive window mode label background color
+let s:flnLblColor   = "#0A2C3B"     " Filename label background color
+let s:mFlgColor     = "#7e7e89"     " Modified flag color
+let s:infBColor     = "#005f87"     " Information bar background color
+let s:disInfBColor  = "#3f3f45"     " Inactive window information bar background color
+let s:rcLbl         = "#87005F"     " Right corner label background color
 
 " FG colors
-let s:white         = "#fcfcfc"
-let s:orange        = "#c66628"
-let s:purpel        = "#7f95d0"
+let s:white         = "#fcfcfc"     " White foreground color
+let s:orange        = "#c66628"     " Orange foreground colr
+let s:purpel        = "#7f95d0"     " Purpel foreground color
 
 " Symbols 
-let s:lnumSym       = "Ln"
-let s:cnumSym       = "Col"
-let s:rASym         = "\ue0b0"
-let s:lASym         = "\ue0b2"
-let s:tagNameSym    = "\u21b3"
-let s:sepASym       = "\ue0b9"
-let s:sepBSym       = "\ue0b8"
-let s:gitBranchSym  = "\ue0a0"
-let s:gitInsSym     = "\u2714"
-let s:gitDelSym     = "\u2718"
-let s:gitUnTckSym   = "??"
-let s:readonlySym   = "\ue0a2"
+let s:lnumSym       = "Ln"          " Line number symbol
+let s:cnumSym       = "Col"         " Column number symbol
+let s:rASym         = "\ue0b0"      " Right arrow symbol ()
+let s:lASym         = "\ue0b2"      " Left arrow symbol ()
+let s:tagNameSym    = "\u21b3"      " Tag name symbol (↳)
+let s:sepASym       = "\ue0b9"      " One color Strick separating information bar components ( )
+let s:sepBSym       = "\ue0b8"      " Two color Strick separating information bar components ( )
+let s:gitBranchSym  = "\ue0a0"      " Git branch symbol ()
+let s:gitInsSym     = "\u2714"      " Git inserted lines symbol ( ✔ )
+let s:gitDelSym     = "\u2718"      " Git deleted lines symbol ( ✘ )
+let s:gitUnTckSym   = "??"          " Git untracked file symbol
+let s:readonlySym   = "\ue0a2"      " Readonly flag symbol ()
 
 " Global git status for all buffers
 let s:GitStatus = {"enabled": 1}
@@ -74,7 +74,7 @@ function s:GetFilename(buf)
     return l:flname
 endfunction
 
-""""""""""""""" Status line Components
+""""""""""""""" Status line components
 " Builds file name & function name label
 function s:BuildFilenameLbl(buf, isActiveWindow)
     let l:bufreadonly = getbufvar(a:buf, "&readonly") || 
