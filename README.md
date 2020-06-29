@@ -1,16 +1,5 @@
-Long StatusLine
-===============
-
-I wanted to build a vim status line that have all the features I want, but also
-fast. Status line plugins like
-[vim-airline](https://github.com/vim-airline/vim-airline) and
-[lightline.vim](https://github.com/itchyny/lightline.vim) have to trade
-**compact**ibility with compatibility, which is understandable given the number of
-their users. However, this definitely have an impact on the performance of the
-plugin, and thus vim's overall performance. 
-
-So, I decided to build `LongStl` focusing on performance and the features I have
-in mind. 
+Fast and Git-featured Vim StatusLine
+====================================
 
 To boost the performance:
 * Much of the status line is built statically, i.e. modes labels and colors, and
@@ -24,15 +13,20 @@ dictionaries that are built either statically, or asynchronously.
 Startup time is also important, and so there is no computation during startup,
 only loading functions, and defining the highlight groups. 
 
-Git information are retrieved once for every buffer when it is opened, and then
-again with every buffer write. 
+Git information are retrieved asynchronously once for every buffer when it is 
+opened, and then again with every buffer write. 
 
 As tested on my machine, and following the procedure at
 [vim-crystalline performance comparison](https://github.com/rbong/vim-crystalline/wiki/Performance-Comparison),
-`LongStl` have total redraw time of `0:00.15` and a total startup time of
+this status line have total redraw time of `0:00.15` and a total startup time of
 `0:01.58` for 100 runs. Surely,
 this is not a comparison to the results in the linked page as my machine could
 be different.
+
+Also, checkout [profiling results](profiling_results/logs) to see detailed
+execution times of 5 runs. As can be seen, the function `SetStatusLine()`, which
+is the function that is called to redraw the status line, have
+a less than `1ms` average execution time. 
 
 ## Features 
 * Git: branch or short commit id.
@@ -45,25 +39,55 @@ be different.
 * Date and time.
 * Greyed out for inactive windows.
 * Mode label coloring based on mode.
-* Much faster than other status lines plugins, some of which have less features than
-  `LongStl`.
+* Much faster than other status lines plugins, some of which have less features.
 
-## Demo
+## Demo of the Git features
+
+Here: [asciinema](https://asciinema.org/a/08MKjRT785EKIaRIxOlgpZzG9)
+
+Notice how I can immediately move my cursor right after I write all buffers at
+once, and the Git information are updated instantly without block the UI.
+
+*Please ignore the messed up unicode symbols in the cast. You can see the actual
+symbols as they show in my screen in the image below.*
+
+## Demo of my setup
 
 ![screenshot](screenshot.png)
 
-## Dependencies
+## Installation
 
-* [YCM](https://github.com/ycm-core/YouCompleteMe): For errors and warnings.
-* [TagList](https://github.com/yegappan/taglist): Status line spans Taglist's
-  window too.
+This is meant as a personal project, as the whole point is to build something
+that is solely focused on delivering a super fast status line plugin without
+worrying about compatibility issues and the likes. 
+
+If you want to use this plugin, I recommend you to fork and make your own
+adjustments to fit your own environment. Use it as a template for your status
+line plugin. The code is only about `500 lines`, and it has comments all over it,
+but please feel free to ask about anything in the code. 
+
+You may also take out the Git functionality out of this project and integrate it
+with [lightline.vim](https://github.com/itchyny/lightline.vim/tree/master/autoload/lightline),
+[vim-airline](https://github.com/vim-airline/vim-airline), or
+[vim-crystalline](https://github.com/rbong/vim-crystalline). If you do this,
+please make a pull request to update this readme file to include how you
+integrated it in your status line.
+
+I would love to know if you used this project in anyway, please make a pull
+request to be added to this page. 
+
+## Dependencies
+**Required dependencies** 
 * [Asyncrun](https://github.com/skywind3000/asyncrun.vim): To get Git
   information asynchronously without a slowdown.
 
-This is meant as a personal project; as the whole point is to avoid runtime
-configuration. But you may use it at your own risk. You
-can view my [vimrc](vimrc/vimrc.vim) to see my full Vim setup and replicate in
-your system, hopefully not many changes are needed.
+**To match the setup that I have**: 
+* [YCM](https://github.com/ycm-core/YouCompleteMe): For errors and warnings.
+* [TagList](https://github.com/yegappan/taglist): Status line spans Taglist's
+  window too.
+
+
+You can view my [vimrc](vimrc/vimrc.vim) to see my full Vim setup.
 
 ### More
 The colorscheme is in `colors/`, you just need to symlink it in vim's
