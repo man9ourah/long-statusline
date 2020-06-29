@@ -230,7 +230,7 @@ function s:GitToggleGit()
     let s:GitStatus = {"enabled": 1 - s:GitStatus["enabled"] }
 endfunction
 
-" Async call back to read tmp file and update s:GitStatus
+" Async callback to quickfix window and update s:GitStatus
 function g:AsyncGitCallback(isFullUpdate, buf)
 
     if g:asyncrun_code != 0
@@ -308,8 +308,9 @@ function s:GitUpdate(initOrWrite, ...)
 endfunction
 
 " Initializes git information
-" 1 out of GitMaxCacheExp times it will just decrement the cache timer, if the
-" cache is expired it will issue an async call to update Git
+" 1 out of GitMaxCacheExp times it will actually issue an async command to
+" update git information. The rest of the time it will just decrement the cache timer, if the
+" cache is expired it will issue an async call to update Git again
 function s:GitInit(buf)
 
     if !has_key(s:GitStatus, a:buf)
