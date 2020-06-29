@@ -46,7 +46,7 @@ a less than `1ms` average execution time.
 Here: [asciinema](https://asciinema.org/a/08MKjRT785EKIaRIxOlgpZzG9)
 
 Notice how I can immediately move my cursor right after I write all buffers at
-once, and the Git information are updated instantly without block the UI.
+once, and the Git information are updated instantly without blocking the UI.
 
 *Please ignore the messed up unicode symbols in the cast. You can see the actual
 symbols as they show in my screen in the image below.*
