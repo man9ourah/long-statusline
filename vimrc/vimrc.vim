@@ -35,6 +35,17 @@ Plugin 'man9ourah/vim-markdown-preview'
 
 Plugin 'man9ourah/long-statusline'
 
+Plugin 'kana/vim-textobj-user'
+
+Plugin 'kana/vim-textobj-line'
+
+Plugin 'Julian/vim-textobj-variable-segment'
+
+Plugin 'kana/vim-textobj-indent'
+
+Plugin 'tpope/vim-surround'
+
+Plugin 'bkad/CamelCaseMotion'
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
 filetype plugin indent on
@@ -105,6 +116,10 @@ let vim_markdown_preview_github=1
 let vim_markdown_preview_browser='Mozilla Firefox'
 let vim_markdown_preview_temp_file=1
 
+""""""""""""""""""""""""""""""""""""""" CamelCaseMotion Mappings
+map <silent> r <Plug>CamelCaseMotion_w
+map <silent> t <Plug>CamelCaseMotion_b
+
 """"""""""""""""""""""""""""""""""""""" Autoclose 
 inoremap " ""<left>
 inoremap ' ''<left>
@@ -140,7 +155,7 @@ set sidescrolloff=4
 " Garbage text
 set t_TI= t_TE=
 " Default update time is too long! (=4000)
-set updatetime=500
+set updatetime=1000
 " Remove search hls
 nnoremap <silent> <f2> :nohls<CR>
 " Show search count
