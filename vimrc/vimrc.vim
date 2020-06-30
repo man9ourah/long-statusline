@@ -140,7 +140,7 @@ set sidescrolloff=4
 " Garbage text
 set t_TI= t_TE=
 " Default update time is too long! (=4000)
-set updatetime=1000
+set updatetime=500
 " Remove search hls
 nnoremap <silent> <f2> :nohls<CR>
 " Show search count
@@ -153,6 +153,10 @@ set noshowmode
 set fillchars+=vert:\┃
 " Max syntax column
 set synmaxcol=500
+" Keycode timeout
+set timeout 
+set timeoutlen=3000 
+set ttimeoutlen=100
 """"""""""""""""""""""""""""""""""""""" Persistent undo
 if has('persistent_undo')
   set undodir=$HOME/.vim/undo
