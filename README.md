@@ -61,20 +61,14 @@ This is meant as a personal project, as the whole point is to build something
 that is solely focused on delivering a super fast status line plugin without
 worrying about compatibility issues and the likes. 
 
-If you want to use this plugin, I recommend you to fork and make your own
-adjustments to fit your own environment. Use it as a template for your status
+If you want to use this plugin, I recommend you to use it as a template for your status
 line plugin. The code is only about `500 lines`, and it has comments all over it,
 but please feel free to ask about anything in the code. 
 
 You may also take out the Git functionality out of this project and integrate it
 with [lightline.vim](https://github.com/itchyny/lightline.vim/tree/master/autoload/lightline),
 [vim-airline](https://github.com/vim-airline/vim-airline), or
-[vim-crystalline](https://github.com/rbong/vim-crystalline). If you do this,
-please make a pull request to update this readme file to include how you
-integrated it in your status line.
-
-I would love to know if you used this project in anyway, please make a pull
-request to be added to this page. 
+[vim-crystalline](https://github.com/rbong/vim-crystalline). 
 
 ## Dependencies
 **Required dependencies** 
