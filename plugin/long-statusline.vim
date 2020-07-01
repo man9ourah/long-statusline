@@ -307,6 +307,30 @@ function s:GitUpdate(initOrWrite, ...)
     endif
 endfunction
 
+" Adopted from: https://gist.github.com/romainl/7198a63faffdadd741e4ae81ae6dd9e6
+" diffs the current file with the one in the tree
+function! GitDiff()
+    let l:buf = bufnr()
+
+    if !s:GitStatus[l:buf]["IsGit"]
+        " Not in a repo?
+        return
+    endif
+    
+    vertical new
+    setlocal bufhidden=wipe buftype=nofile nobuflisted noswapfile
+    let cmd = "!git -C " . s:GitStatus[l:buf]["RootDir"]  . 
+                \ " show HEAD:" . substitute(expand("#" . l:buf . ":p"), 
+                                    \ s:GitStatus[l:buf]["RootDir"] . "/", "", "")
+ 
+    execute "read " . cmd
+    silent 0d_
+    diffthis
+
+    wincmd p
+    diffthis
+endfunction
+
 " Initializes git information
 " 1 out of GitMaxCacheExp times it will actually issue an async command to
 " update git information. The rest of the time it will just decrement the cache timer, if the
@@ -510,5 +534,7 @@ augroup longsts
     autocmd BufWritePost * call s:GitUpdate(0)
     " GitToggle Command
     command! -nargs=0 -bar GitToggle call s:GitToggleGit()
+
+    command! -nargs=0 GD call GitDiff()
 augroup END
 
