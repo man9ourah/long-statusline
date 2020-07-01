@@ -316,8 +316,9 @@ function! GitDiff()
         " Not in a repo?
         return
     endif
+    diffthis
 
-    vertical new
+    vertical rightbelow new
     setlocal bufhidden=wipe buftype=nofile nobuflisted noswapfile
     let cmd = "!git -C " . s:GitStatus[l:buf]["RootDir"]  .
                 \ " show HEAD:" . substitute(expand("#" . l:buf . ":p"),
@@ -327,8 +328,6 @@ function! GitDiff()
     silent 0d_
     diffthis
 
-    wincmd p
-    diffthis
 endfunction
 
 " Initializes git information
