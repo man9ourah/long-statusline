@@ -22,7 +22,6 @@ let s:anotherblue = "#00b0ff"
 let s:orange = "#c66628"
 let s:red = "#af0000"
 let s:yellow = "#ffc421"
-let s:pink = "#ad7fa8"
 let s:diffRed = "#380000"
 let s:diffGreen = "#003800"
 let s:diffText = s:diffRed
@@ -48,8 +47,8 @@ exec "hi CursorLineNr cterm=bold guifg=".s:orange." guibg=NONE"
 set cursorline
 
 " Popup menu
-exec "hi Pmenu guifg=".s:darkgrey." guibg=".s:pink
-exec "hi PmenuSel guifg=".s:pink." guibg=".s:darkgrey 
+exec "hi Pmenu guifg=".s:darkgrey." guibg=".s:purpel
+exec "hi PmenuSel guifg=".s:purpel." guibg=".s:darkgrey 
 
 " Search
 exec "hi IncSearch guifg=#FCE94F guibg=black"
@@ -85,5 +84,5 @@ exec "hi DiffDelete guibg="s:darkgrey." guifg=black"
 unlet s:darkblue s:mutewhite s:grey s:darkgrey
             \ s:magenta s:lightmagenta s:green s:darkgreen
             \ s:purpel s:lightblue s:anotherblue s:orange
-            \ s:red s:yellow s:pink s:diffRed s:diffGreen
+            \ s:red s:yellow s:diffRed s:diffGreen
             \ s:diffText
