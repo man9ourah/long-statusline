@@ -181,7 +181,7 @@ function s:ManageWinStl()
         let l:wintype = win_gettype(n)
 
         " Ignore popup & autocmd
-        if (l:wintype !=# 'popup' || l:wintype !=# 'autocmd')
+        if (l:wintype !=# 'popup' && l:wintype !=# 'autocmd')
             let l:bufnum = winbufnr(n)
             let l:winbufname = bufname(l:bufnum)
             let l:winid = win_getid(n)
