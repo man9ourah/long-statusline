@@ -221,7 +221,7 @@ endfunction
 
 """""""""""""""" Git
 " Debug Git
-function g:GitDebug()
+function s:GitDebug()
     echom s:GitStatus
 endfunction
 
@@ -309,7 +309,7 @@ endfunction
 
 " Adopted from: https://gist.github.com/romainl/7198a63faffdadd741e4ae81ae6dd9e6
 " diffs the current file with the one in the tree
-function! GitDiff()
+function! s:GitDiff()
     let l:buf = bufnr()
 
     if !s:GitStatus[l:buf]["IsGit"]
@@ -533,7 +533,9 @@ augroup longsts
     autocmd BufWritePost * call s:GitUpdate(0)
     " GitToggle Command
     command! -nargs=0 -bar GitToggle call s:GitToggleGit()
-
-    command! -nargs=0 GD call GitDiff()
+    " GitDiff
+    command! -nargs=0 GD call s:GitDiff()
+    " Git Debug
+    command! -nargs=0 GitDebug call s:GitDebug()
 augroup END
 
