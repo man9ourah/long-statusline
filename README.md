@@ -66,7 +66,7 @@ line plugin. The code is only about `500 lines`, and it has comments all over it
 but please feel free to ask about anything in the code. 
 
 You may also take out the Git functionality out of this project and integrate it
-with [lightline.vim](https://github.com/itchyny/lightline.vim/tree/master/autoload/lightline),
+with [lightline.vim](https://github.com/itchyny/lightline.vim/),
 [vim-airline](https://github.com/vim-airline/vim-airline), or
 [vim-crystalline](https://github.com/rbong/vim-crystalline). 
 
