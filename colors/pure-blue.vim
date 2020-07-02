@@ -23,6 +23,9 @@ let s:orange = "#c66628"
 let s:red = "#af0000"
 let s:yellow = "#ffc421"
 let s:pink = "#ad7fa8"
+let s:diffRed = "#380000"
+let s:diffGreen = "#003800"
+let s:diffText = s:diffRed
 
 " Normal 
 exec "hi Normal guifg=".s:mutewhite." guibg=".s:darkblue
@@ -73,10 +76,14 @@ exec "hi IndentGuidesOdd  guibg=#323232"
 exec "hi IndentGuidesEven guibg=".s:darkgrey
 
 " Diff
-exec "hi DiffChange	guibg=".s:darkblue." guifg=".s:mutewhite
-exec "hi DiffText gui=NONE cterm=NONE guibg=".s:red." guifg=".s:mutewhite
-exec "hi DiffAdd guibg=".s:darkgreen." guifg=".s:mutewhite
+exec "hi DiffChange	guibg=".s:diffRed." guifg=".s:grey
+exec "hi DiffText gui=bold cterm=underline guibg=".s:diffText." guifg=".s:mutewhite
+exec "hi DiffAdd guibg=".s:diffGreen." guifg=".s:mutewhite
 exec "hi DiffDelete guibg="s:darkgrey." guifg=black"
 
 
-unlet s:darkblue s:mutewhite s:grey s:darkgrey s:magenta s:lightmagenta s:green s:darkgreen s:purpel s:lightblue s:anotherblue s:orange s:red s:yellow s:pink
+unlet s:darkblue s:mutewhite s:grey s:darkgrey
+            \ s:magenta s:lightmagenta s:green s:darkgreen
+            \ s:purpel s:lightblue s:anotherblue s:orange
+            \ s:red s:yellow s:pink s:diffRed s:diffGreen
+            \ s:diffText
