@@ -45,6 +45,8 @@ Plugin 'kana/vim-textobj-indent'
 
 Plugin 'tpope/vim-surround'
 
+Plugin 'tpope/vim-commentary'
+
 Plugin 'bkad/CamelCaseMotion'
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
@@ -86,8 +88,8 @@ let g:ycm_auto_trigger = 1
 let g:ycm_confirm_extra_conf = 0
 let g:ycm_goto_buffer_command = 'split'
 let g:ycm_always_populate_location_list = 1
-nnoremap <silent> <c-u> :YcmCompleter GoTo<CR>
-nnoremap <silent> <c-i> :YcmCompleter FixIt<CR>
+nnoremap <silent> <c-g> :YcmCompleter GoTo<CR>
+nnoremap <silent> <c-f> :YcmCompleter FixIt<CR>
 nmap <c-@> <plug>(YCMHover)
 
 """""""""""""""""""""""""""""""""""""""" IndentGuides
@@ -117,8 +119,8 @@ let vim_markdown_preview_browser='Mozilla Firefox'
 let vim_markdown_preview_temp_file=1
 
 """"""""""""""""""""""""""""""""""""""" CamelCaseMotion Mappings
-map <silent> r <Plug>CamelCaseMotion_w
-map <silent> t <Plug>CamelCaseMotion_b
+map <silent> t <Plug>CamelCaseMotion_w
+map <silent> r <Plug>CamelCaseMotion_b
 
 """"""""""""""""""""""""""""""""""""""" Autoclose 
 inoremap " ""<left>
