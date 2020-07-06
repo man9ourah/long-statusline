@@ -48,6 +48,8 @@ Plugin 'tpope/vim-surround'
 Plugin 'tpope/vim-commentary'
 
 Plugin 'bkad/CamelCaseMotion'
+
+Plugin 'man9ourah/ctrlp.vim'
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
 filetype plugin indent on
