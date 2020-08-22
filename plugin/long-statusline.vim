@@ -462,11 +462,9 @@ let s:modifiedFlag =
 exec 'hi! ErrLbl guibg='                .s:errLblColor     . ' guifg='     . s:white
 exec 'hi! ErrLblSepWrn guibg='          .s:warnLblColor    . ' guifg='     . s:errLblColor
 exec 'hi! ErrLblSepClk guibg='          .s:clkLblColor     . ' guifg='     . s:errLblColor
-exec 'hi! YcmErrorSection guibg='       .s:errLblColor
 
 exec 'hi! WrnLbl guibg='                .s:warnLblColor    . ' guifg='     . s:white
 exec 'hi! WrnLblSepClk guibg='          .s:clkLblColor     . ' guifg='     . s:warnLblColor
-exec 'hi! YcmWarningSection guibg='     .s:warnLblColor
 
 exec 'hi! ClkLbl guibg='                .s:clkLblColor     . ' guifg='     . s:white
 
