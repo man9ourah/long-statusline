@@ -468,31 +468,31 @@ exec 'hi! WrnLblSepClk guibg='          .s:clkLblColor     . ' guifg='     . s:w
 
 exec 'hi! ClkLbl guibg='                .s:clkLblColor     . ' guifg='     . s:white
 
-exec 'hi! NLbl gui=bold guibg='         .s:nLblColor       . ' guifg='     . s:white
+exec 'hi! NLbl gui=NONE guibg='         .s:nLblColor       . ' guifg='     . s:white
 exec 'hi! NLblSepFln guibg='            .s:flnLblColor     . ' guifg='     . s:nLblColor
 exec 'hi! NLblSepClk guibg='            .s:clkLblColor     . ' guifg='     . s:nLblColor
 
-exec 'hi! VLbl gui=bold guibg='         .s:vLblColor       . ' guifg='     . s:white
+exec 'hi! VLbl gui=NONE guibg='         .s:vLblColor       . ' guifg='     . s:white
 exec 'hi! VLblSepFln guibg='            .s:flnLblColor     . ' guifg='     . s:vLblColor
 exec 'hi! VLblSepClk guibg='            .s:clkLblColor     . ' guifg='     . s:vLblColor
 
-exec 'hi! RLbl gui=bold guibg='         .s:rLblColor       . ' guifg='     . s:white
+exec 'hi! RLbl gui=NONE guibg='         .s:rLblColor       . ' guifg='     . s:white
 exec 'hi! RLblSepFln guibg='            .s:flnLblColor     . ' guifg='     . s:rLblColor
 exec 'hi! RLblSepClk guibg='            .s:clkLblColor     . ' guifg='     . s:rLblColor
 
-exec 'hi! ILbl gui=bold guibg='         .s:iLblColor       . ' guifg='     . s:white
+exec 'hi! ILbl gui=NONE guibg='         .s:iLblColor       . ' guifg='     . s:white
 exec 'hi! ILblSepFln guibg='            .s:flnLblColor     . ' guifg='     . s:iLblColor
 exec 'hi! ILblSepClk guibg='            .s:clkLblColor     . ' guifg='     . s:iLblColor
 
-exec 'hi! SLbl gui=bold guibg='         .s:sLblColor       . ' guifg='     . s:white
+exec 'hi! SLbl gui=NONE guibg='         .s:sLblColor       . ' guifg='     . s:white
 exec 'hi! SLblSepFln guibg='            .s:flnLblColor     . ' guifg='     . s:sLblColor
 exec 'hi! SLblSepClk guibg='            .s:clkLblColor     . ' guifg='     . s:sLblColor
 
-exec 'hi! OLbl gui=bold guibg='         .s:oLblColor       . ' guifg='     . s:white
+exec 'hi! OLbl gui=NONE guibg='         .s:oLblColor       . ' guifg='     . s:white
 exec 'hi! OLblSepFln guibg='            .s:flnLblColor     . ' guifg='     . s:oLblColor
 exec 'hi! OLblSepClk guibg='            .s:clkLblColor     . ' guifg='     . s:oLblColor
 
-exec 'hi! DisLbl gui=bold guibg='       .s:disLblColor     . ' guifg='     . s:white
+exec 'hi! DisLbl gui=NONE guibg='       .s:disLblColor     . ' guifg='     . s:white
 exec 'hi! DisLblSepFln guibg='          .s:flnLblColor     . ' guifg='     . s:disLblColor
 exec 'hi! DisLblSepClk guibg='          .s:clkLblColor     . ' guifg='     . s:disLblColor
 
@@ -500,20 +500,20 @@ exec 'hi! FlnLbl gui=None guibg='       .s:flnLblColor     . ' guifg='     . s:w
 exec 'hi! FuncLbl gui=None guibg='      .s:flnLblColor     . ' guifg='     . s:orange
 
 
-exec 'hi! MFlag gui=bold guibg='        .s:mFlgColor
+exec 'hi! MFlag gui=NONE guibg='        .s:mFlgColor
 exec 'hi! MFlagSepFln guibg='           .s:flnLblColor     . ' guifg='      . s:mFlgColor
 
-exec 'hi! InfB gui=bold guibg='         .s:infBColor       . ' guifg='      . s:white
-exec 'hi! InfBStrick gui=bold guibg='   .s:infBColor       . ' guifg='      . s:black
+exec 'hi! InfB gui=NONE guibg='         .s:infBColor       . ' guifg='      . s:white
+exec 'hi! InfBStrick gui=NONE guibg='   .s:infBColor       . ' guifg='      . s:black
 exec 'hi! InfBSepMFlag guibg='          .s:mFlgColor       . ' guifg='      . s:infBColor
 exec 'hi! InfBSepFln guibg='            .s:flnLblColor     . ' guifg='      . s:infBColor
 
-exec 'hi! DisInfB gui=bold guibg='      .s:disInfBColor    . ' guifg='      . s:white
-exec 'hi! DisInfBStrick gui=bold guibg='.s:disInfBColor    . ' guifg='      . s:black
+exec 'hi! DisInfB gui=NONE guibg='      .s:disInfBColor    . ' guifg='      . s:white
+exec 'hi! DisInfBStrick gui=NONE guibg='.s:disInfBColor    . ' guifg='      . s:black
 exec 'hi! DisInfBSepMFlag guibg='       .s:mFlgColor       . ' guifg='      . s:disInfBColor
 exec 'hi! DisInfBSepFln guibg='         .s:flnLblColor     . ' guifg='      . s:disInfBColor
 
-exec 'hi! RC gui=bold guibg='           .s:rcLbl           . ' guifg='      . s:white
+exec 'hi! RC gui=NONE guibg='           .s:rcLbl           . ' guifg='      . s:white
 exec 'hi! RCSepInfB guibg='             .s:rcLbl           . ' guifg='      . s:infBColor
 exec 'hi! RCSepDisInfB guibg='          .s:rcLbl           . ' guifg='      . s:disInfBColor
 
