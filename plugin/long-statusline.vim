@@ -208,7 +208,7 @@ function s:ManageWinStl()
             " Set straight line
             call setwinvar(n, '&statusline',
                         \ "%#StraightLine#%{" .
-                        \ "repeat('━',\ winwidth(win_id2win(".l:winid.")))" .
+                        \ "repeat('⸺',\ winwidth(win_id2win(".l:winid.")))" .
                         \ "}")
 
         elseif (n == l:bottomRightWin) && l:taglistWin &&
@@ -520,8 +520,8 @@ exec 'hi! RCSepDisInfB guibg='          .s:rcLbl           . ' guifg='      . s:
 exec 'hi! StatusLine guifg='            .s:flnLblColor     . ' guibg='      .s:flnLblColor
 exec 'hi! StatusLineNC guibg='          .s:flnLblColor      . ' guifg='      .s:flnLblColor
 
-exec 'hi! StraightLine guifg='          .s:purpel          . ' guibg='      . s:black
-exec 'hi! VertSplit guibg='             .s:purpel          . ' guifg='      . s:black
+exec 'hi! StraightLine guifg='          .s:white          . ' guibg='      . 'NONE'
+exec 'hi! VertSplit gui=NONE guibg='             .'NONE'          . ' guifg='      . s:white
 
 unlet s:nLblColor s:iLblColor s:rLblColor s:vLblColor
             \ s:sLblColor s:oLblColor s:disLblColor s:flnLblColor
