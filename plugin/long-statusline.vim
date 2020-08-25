@@ -520,8 +520,8 @@ exec 'hi! RCSepDisInfB guibg='          .s:rcLbl           . ' guifg='      . s:
 exec 'hi! StatusLine guifg='            .s:flnLblColor     . ' guibg='      .s:flnLblColor
 exec 'hi! StatusLineNC guibg='          .s:flnLblColor      . ' guifg='      .s:flnLblColor
 
-exec 'hi! StraightLine guifg='          .s:purpel          . ' guibg='      . s:flnLblColor
-exec 'hi! VertSplit guibg='             .s:purpel          . ' guifg='      . s:flnLblColor
+exec 'hi! StraightLine guifg='          .s:purpel          . ' guibg='      . s:black
+exec 'hi! VertSplit guibg='             .s:purpel          . ' guifg='      . s:black
 
 unlet s:nLblColor s:iLblColor s:rLblColor s:vLblColor
             \ s:sLblColor s:oLblColor s:disLblColor s:flnLblColor
