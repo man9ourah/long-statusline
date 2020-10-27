@@ -74,15 +74,3 @@ with [lightline.vim](https://github.com/itchyny/lightline.vim/),
 **Required dependencies** 
 * [Asyncrun](https://github.com/skywind3000/asyncrun.vim): To get Git
   information asynchronously without a slowdown.
-
-**To match the setup that I have**: 
-* [YCM](https://github.com/ycm-core/YouCompleteMe): For errors and warnings.
-* [TagList](https://github.com/yegappan/taglist): Status line spans Taglist's
-  window too.
-
-
-You can view my [vimrc](vimrc/vimrc.vim) to see my full Vim setup.
-
-### More
-The colorscheme is in `colors/`, you just need to symlink it in vim's
-`colors/` directory.
