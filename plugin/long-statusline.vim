@@ -81,7 +81,11 @@ function s:BuildFilenameLbl(buf, isActiveWindow)
     let l:bufreadonly = getbufvar(a:buf, "&readonly") ||
                 \ (getbufvar(a:buf, "&modifiable") == 0)
 
-    let l:middleText = "%#FlnLbl#" . s:GetFilename(a:buf)  . " " .
+    let l:filename = (getbufvar(a:buf, '&filetype') == "mail") ?
+                \ "New mail" :
+                \ s:GetFilename(a:buf)
+
+    let l:middleText = "%#FlnLbl#" . l:filename . " " .
                 \ ((l:bufreadonly) ? s:readonlySym . " " : "")
 
     let l:md = mode()
