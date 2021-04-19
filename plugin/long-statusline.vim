@@ -260,7 +260,7 @@ function g:AsyncGitCallback(isFullUpdate, buf)
     let l:maxExpectedLines = 3
 
     if a:isFullUpdate
-        let s:GitStatus[a:buf]["RootDir"] = trim(fnamemodify(l:lines[0]["text"], ":h"))
+        let s:GitStatus[a:buf]["RootDir"] = trim(l:lines[0]["text"])
         let s:GitStatus[a:buf]["BranchName"] = trim(fnamemodify(l:lines[1]["text"], ":t"))
         let l:maxExpectedLines = 5
     endif
