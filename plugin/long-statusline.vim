@@ -234,7 +234,7 @@ endfunction
 """""""""""""""" Git
 " Debug Git
 function s:GitDebug()
-    echom s:GitStatus
+    echom string(s:GitStatus)
 endfunction
 
 " Toggle Git
