@@ -297,7 +297,7 @@ function s:GitUpdate(initOrWrite, ...)
     let l:cmd = ""
 
     if l:isFullUpdate
-        let l:cmd  = "git -C " . l:parentDir . " rev-parse --absolute-git-dir 2>/dev/null && "
+        let l:cmd  = "git -C " . l:parentDir . " rev-parse --show-toplevel 2>/dev/null && "
         let l:cmd .= "(git -C " . l:parentDir . " symbolic-ref HEAD || "
         let l:cmd .= "git -C " . l:parentDir . " rev-parse --short HEAD) 2>/dev/null && "
     endif
