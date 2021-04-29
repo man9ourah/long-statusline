@@ -9,6 +9,9 @@ if exists('g:loaded_longStl')
 endif
 let g:loaded_longStl = 1
 
+" If we should use powerline separators
+let g:LStlPowerlineSep = get(g:, 'LStlPowerlineSep', 0)
+
 " Background Colors
 " From left to right
 let s:errLblColor   = "#af0000"     " Error label background color
@@ -36,11 +39,11 @@ let s:black         = "#000000"     " Black foreground color
 " Symbols
 let s:lnumSym       = "Ln"          " Line number symbol
 let s:cnumSym       = "Col"         " Column number symbol
-let s:rASym         = "\ue0b0"      " Right arrow symbol ()
-let s:lASym         = "\ue0b2"      " Left arrow symbol ()
+let s:rASym         = (g:LStlPowerlineSep) ? "\ue0b0" : ""      " Right arrow symbol () or empty
+let s:lASym         = (g:LStlPowerlineSep) ? "\ue0b2" : ""      " Left arrow symbol () or empty
 let s:tagNameSym    = "\u21b3"      " Tag name symbol (↳)
-let s:sepASym       = "\ue0b9"      " One color Strick separating information bar components ( )
-let s:sepBSym       = "\ue0b8"      " Two color Strick separating information bar components ( )
+let s:sepASym       = (g:LStlPowerlineSep) ? "\ue0b9 " : "▏"      " One color Strick separating information bar components ( ) or straight line
+let s:sepBSym       = (g:LStlPowerlineSep) ? "\ue0b8" : ""      " Two color Strick separating information bar components ( ) or empty
 let s:gitBranchSym  = "\ue0a0"      " Git branch symbol ()
 let s:gitInsSym     = "\u2714"      " Git inserted lines symbol ( ✔ )
 let s:gitDelSym     = "\u2718"      " Git deleted lines symbol ( ✘ )
@@ -116,7 +119,7 @@ function s:BuildInfBar(buf, isActiveWindow)
                     \ s:GitStatus[a:buf]["BranchName"] . s:GitStatus[a:buf]["Dirty"]
 
         let l:infBar .= " %#" . l:infBHighlight . "Strick#" .
-                    \ s:sepASym . " %#" . l:infBHighlight . "#"
+                    \ s:sepASym . "%#" . l:infBHighlight . "#"
 
         if s:GitStatus[a:buf]["IsTracked"]
             let l:infBar .= s:gitInsSym . " " . s:GitStatus[a:buf]["InsertNum"] . " "
@@ -126,12 +129,12 @@ function s:BuildInfBar(buf, isActiveWindow)
         endif
 
         let l:infBar .= " %#" . l:infBHighlight . "Strick#" .
-                    \ s:sepASym . " %#" . l:infBHighlight . "#"
+                    \ s:sepASym . "%#" . l:infBHighlight . "#"
 
     endif
 
     let l:infBar .= s:cnumSym . " %c" . " %#" . l:infBHighlight .
-                \ "Strick#" . s:sepASym . " %#" . l:infBHighlight . "#"
+                \ "Strick#" . s:sepASym . "%#" . l:infBHighlight . "#"
 
     let l:infBar .= s:lnumSym . " %l"
     let l:infBar .= " %#RCSep" . l:infBHighlight . "#" .
