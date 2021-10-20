@@ -313,7 +313,10 @@ function s:GitUpdate(initOrWrite, ...)
     if g:asyncrun_status != "running"
         " Async call to g:AsyncGitCallback()
         call asyncrun#run("",
-                    \ {"post": "call g:AsyncGitCallback(" . l:isFullUpdate . ", " .  l:buf . ")"},
+                    \ {
+                        \ "raw" : "1",
+                        \ "post": "call g:AsyncGitCallback(" . l:isFullUpdate . ", " .  l:buf . ")"
+                    \ },
                     \ l:cmd)
     else
         " If we could not execute it now, void the cache so that it is executed
