@@ -206,7 +206,7 @@ function s:ManageWinStl()
         let l:isHelp = getbufvar(l:winbufname, "&ft") ==# "help"
         let l:isQf = getwinvar(n, '&syntax') == 'qf'
 
-        if l:winbufname ==# g:TagList_title
+        if l:winbufname =~ g:TagList_title
             " Set the taglist status line
             call setwinvar(n, '&statusline', "%!SetTaglistSts()")
             let l:taglistWin = n
