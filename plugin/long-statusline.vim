@@ -12,6 +12,9 @@ let g:loaded_longStl = 1
 " If we should use powerline separators
 let g:LStlPowerlineSep = get(g:, 'LStlPowerlineSep', 0)
 
+" The side window name
+let g:LStlSideWindow = get(g:, 'LStlSideWindow ', "NvimTree")
+
 " Background Colors
 " From left to right
 let s:errLblColor   = "#af0000"     " Error label background color
@@ -206,7 +209,7 @@ function s:ManageWinStl()
         let l:isHelp = getbufvar(l:winbufname, "&ft") ==# "help"
         let l:isQf = getwinvar(n, '&syntax') == 'qf'
 
-        if l:winbufname =~ g:TagList_title
+        if l:winbufname =~ g:LStlSideWindow
             " Set the taglist status line
             call setwinvar(n, '&statusline', "%!SetTaglistSts()")
             let l:taglistWin = n
