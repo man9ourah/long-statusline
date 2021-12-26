@@ -96,14 +96,18 @@ function s:BuildFilenameLbl(buf, isActiveWindow)
 
     let l:md = mode()
     if (l:md ==? "i" || l:md ==# "R") && (a:isActiveWindow)
-        " Consult Taglist about nearby tag
-        let l:funcProto = Tlist_Get_Tag_Prototype_By_Line()
+        " Consult Treesitter about nearby tag
+         let l:funcProto = nvim_treesitter#statusline({
+                     \ "indicator_size": 80,
+                     \ "type_patterns": ["class", "function", "method", "interface",
+                                         \ "type_spec", "table", "if_statement", "for_statement",
+                                         \ "for_in_statement"],
+                     \ "separator": " → "})
 
-        if (len(l:funcProto))
+        if (type(l:funcProto) == v:t_string && len(l:funcProto))
             " Show function name instead in insert or replace mode
             let l:middleText = "%#FuncLbl#" . s:tagNameSym .
-                        \ " " . s:RightTruncate(l:funcProto,
-                        \ (winwidth(0) - ((s:GitStatus[a:buf]["IsGit"]) ? 69 : 45)))
+                        \ " " . l:funcProto
 
         endif
 
